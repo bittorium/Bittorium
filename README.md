@@ -16,7 +16,7 @@ sudo apt-get install librocksdb-dev
 
 ##### Building
 
-- `git clone https://github.com/Jachi84/pinkstarcoinv2.git`
+- `git clone https://github.com/Jachi84/PinkstarcoinV2.git`
 - `cd pinkstarcoinv2`
 - `mkdir build && cd $_`
 - `cmake ..`
@@ -32,7 +32,7 @@ sudo apt-get install librocksdb-dev
 
 ##### Building
 
-- `git clone https://github.com/Jachi84/pinkstarcoinv2.git`
+- `git clone https://github.com/Jachi84/PinkstarcoinV2.git`
 - `cd pinkstarcoinv2`
 - `mkdir build && cd $_`
 - `cmake ..` or `cmake -DBOOST_ROOT=<path_to_boost_install> ..` when building

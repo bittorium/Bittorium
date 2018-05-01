@@ -847,6 +847,7 @@ void doTransfer(uint16_t mixin, std::string address, uint64_t amount,
                     = walletInfo->wallet.getTransaction(id);
 
                 std::cout << SuccessMsg("Transaction has been sent!")
+                          << std::endl
                           << SuccessMsg("Hash: " + 
                                         Common::podToHex(tx.hash))
                           << std::endl;

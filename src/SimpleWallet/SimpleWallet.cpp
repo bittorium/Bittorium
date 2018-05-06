@@ -1265,6 +1265,14 @@ void printIncomingTransfer(CryptoNote::WalletTransaction t,
               << SuccessMsg("Amount: " + formatAmount(t.totalAmount))
               << std::endl;
 
+    Crypto::Hash paymentId;
+    std::vector<uint8_t> vec(t.extra.begin(), t.extra.end());
+    if (CryptoNote::getPaymentIdFromTxExtra(vec, paymentId))
+    {
+        std::cout << SuccessMsg("Payment ID: " + Common::podToHex(paymentId))
+                  << std::endl;
+    }
+
     /* Couldn't get timestamp, maybe old node or PinkstarcoinV2d closed */
     if (blockTime != "")
     {
@@ -1337,8 +1345,18 @@ void checkForNewTransactions(std::shared_ptr<WalletInfo> &walletInfo)
                           << std::endl
                           << SuccessMsg("Amount: "
                                       + formatAmount(t.totalAmount))
-                          << std::endl
-                          << getPrompt(walletInfo)
+                          << std::endl;
+
+                Crypto::Hash paymentId;
+                std::vector<uint8_t> vec(t.extra.begin(), t.extra.end());
+                if (CryptoNote::getPaymentIdFromTxExtra(vec, paymentId))
+                {
+                    std::cout << SuccessMsg("Payment ID: "
+                                          + Common::podToHex(paymentId))
+                              << std::endl;
+                }
+
+                std::cout << getPrompt(walletInfo)
                           << std::flush;
             }
         }

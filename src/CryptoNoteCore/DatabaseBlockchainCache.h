@@ -80,6 +80,7 @@ public:
                             std::vector<std::pair<Crypto::Hash, size_t>>& outputReferences) const override;
 
   uint32_t getTopBlockIndex() const override;
+  const Crypto::Hash& getStartBlockHash() const override;
   const Crypto::Hash& getTopBlockHash() const override;
   uint32_t getBlockCount() const override;
   bool hasBlock(const Crypto::Hash& blockHash) const override;
@@ -163,6 +164,7 @@ private:
   IDataBase& database;
   IBlockchainCacheFactory& blockchainCacheFactory;
   mutable boost::optional<uint32_t> topBlockIndex;
+  mutable boost::optional<Crypto::Hash> startBlockHash;
   mutable boost::optional<Crypto::Hash> topBlockHash;
   mutable boost::optional<uint64_t> transactionsCount;
   mutable boost::optional<uint32_t> keyOutputAmountsCount;

@@ -583,7 +583,7 @@ std::unique_ptr<IBlockchainCache> DatabaseBlockchainCache::split(uint32_t splitB
   cutTail(unitsCache, currentTop + 1 - splitBlockIndex);
 
   children.push_back(cache.get());
-  logger(Logging::TRACE) << "Delete successfull";
+  logger(Logging::TRACE) << "Delete successful";
 
   // invalidate top block index and hash
   topBlockIndex = boost::none;
@@ -1071,6 +1071,15 @@ uint64_t DatabaseBlockchainCache::getCachedTransactionsCount() const {
   }
 
   return *transactionsCount;
+}
+
+const Crypto::Hash& DatabaseBlockchainCache::getStartBlockHash() const {
+  if (!startBlockHash) {
+    auto batch = BlockchainReadBatch().requestCachedBlock(getStartBlockIndex());
+    auto result = readDatabase(batch);
+    startBlockHash = result.getCachedBlocks().at(getStartBlockIndex()).blockHash;
+  }
+  return *startBlockHash;
 }
 
 const Crypto::Hash& DatabaseBlockchainCache::getTopBlockHash() const {

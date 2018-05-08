@@ -69,6 +69,7 @@ DaemonCommandsHandler::DaemonCommandsHandler(CryptoNote::Core& core, CryptoNote:
   m_consoleHandler.setHandler("print_pool", boost::bind(&DaemonCommandsHandler::print_pool, this, _1), "Print transaction pool (long format)");
   m_consoleHandler.setHandler("print_pool_sh", boost::bind(&DaemonCommandsHandler::print_pool_sh, this, _1), "Print transaction pool (short format)");
   m_consoleHandler.setHandler("set_log", boost::bind(&DaemonCommandsHandler::set_log, this, _1), "set_log <level> - Change current log level, <level> is a number 0-4");
+  m_consoleHandler.setHandler("alt_chain_info", boost::bind(&DaemonCommandsHandler::print_alternate_chains, this, _1), "alt_chain_info - Print information about alternative chains");
 }
 
 //--------------------------------------------------------------------------------
@@ -213,6 +214,36 @@ bool DaemonCommandsHandler::set_log(const std::vector<std::string>& args)
   }
 
   m_logManager.setMaxLevel(static_cast<Logging::Level>(l));
+  return true;
+}
+
+//--------------------------------------------------------------------------------
+bool DaemonCommandsHandler::print_alternate_chains(const std::vector<std::string>& args)
+{
+  CryptoNote::COMMAND_RPC_GET_ALTERNATE_CHAINS::request req;
+  CryptoNote::COMMAND_RPC_GET_ALTERNATE_CHAINS::response res;
+
+  if (args.size() != 0) {
+    std::cout << "Command 'alt_chain_info' doesn't take any arguments!" << std::endl;
+    return false;
+  }
+
+  if (!m_prpc_server->on_get_alternate_chains(req, res)) {
+    std::cout << res.status << std::endl;
+    return false;
+  }
+
+  if (res.chains.size() == 0)
+    std::cout << "No alternate chains found." << std::endl;
+  else {
+    std::cout << res.chains.size() << " alternate chains found:" << std::endl;
+
+    for (const auto& chain: res.chains) {
+      std::cout << chain.length << " blocks long, branching at height " << (chain.height - chain.length + 1)
+                << ", difficulty " << chain.difficulty << ": " << chain.block_hash;
+    }
+  }
+
   return true;
 }
 

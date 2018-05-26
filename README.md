@@ -63,5 +63,5 @@ Run `./src/PinkstarcoinV2d` to connect to the network and let it sync (it may ta
 - Additionally, a `.sln` file will have been created in the `build` directory. If you wish to open the project in Visual Studio with this, you can.
 
 #### Thanks
-Cryptonote Developers, Bytecoin Developers, Monero Developers, Forknote Project, PinkstarcoinV2 Community
+Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Developers, Forknote Project, PinkstarcoinV2 Community
 "# PinkstarcoinV2" 

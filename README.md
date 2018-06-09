@@ -6,7 +6,7 @@
 ##### Prerequisites
 
 - You will need the following packages: boost (1.55 or higher), rocksdb, cmake, git, gcc (4.9 or higher), g++ (4.9 or higher), make, and python. Most of these should already be installed on your system.
-- For example on Ubuntu: `sudo apt-get install build-essential python-dev gcc g++ git cmake libboost-all-dev librocksdb-dev`
+- For example on Ubuntu: `sudo apt-get -y install build-essential python-dev gcc-4.9 g++-4.9 git cmake libboost1.58-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev`
 - If you are using Ubuntu and your version of Ubuntu doesn't have librocksdb-dev, you can get it from a ppa instead:
 ```
 sudo add-apt-repository ppa:ethcore/ethcore -y
@@ -17,10 +17,10 @@ sudo apt-get install librocksdb-dev
 ##### Building
 
 - `git clone https://github.com/Jachi84/PinkstarcoinV2.git`
-- `cd pinkstarcoinv2`
-- `mkdir build && cd $_`
-- `cmake ..`
-- `make`
+- `cd PinkstarcoinV2`
+- `rm -rf build; mkdir -p build/release; cd build/release`
+- `cmake -D STATIC=ON -D ARCH="default" -D CMAKE_BUILD_TYPE=Release ../..`
+- `PORTABLE=1 make`
 
 #### Apple
 

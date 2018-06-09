@@ -33,8 +33,8 @@ sudo apt-get install librocksdb-dev
 ##### Building
 
 - `git clone https://github.com/Jachi84/PinkstarcoinV2.git`
-- `cd pinkstarcoinv2`
-- `mkdir build && cd $_`
+- `cd PinkstarcoinV2`
+- `rm -rf build; mkdir -p build/release; cd build/release`
 - `cmake ..` or `cmake -DBOOST_ROOT=<path_to_boost_install> ..` when building
   from a specific boost install. If you used brew to install boost, your path is most likely `/usr/local/include/boost.`
 - `make`
@@ -63,5 +63,5 @@ Run `./src/PinkstarcoinV2d` to connect to the network and let it sync (it may ta
 - Additionally, a `.sln` file will have been created in the `build` directory. If you wish to open the project in Visual Studio with this, you can.
 
 #### Thanks
-Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Developers, Forknote Project, PinkstarcoinV2 Community
+Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Developers, Forknote Project, PinkstarcoinV2 Developers
 "# PinkstarcoinV2" 

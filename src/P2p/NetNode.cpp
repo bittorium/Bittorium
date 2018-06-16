@@ -1207,6 +1207,26 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
   }
   //-----------------------------------------------------------------------------------
 
+  bool NodeServer::log_peerlist_white()
+  {
+    std::list<PeerlistEntry> pl_wite;
+    m_peerlist.get_peerlist_white(pl_wite);
+    logger(INFO) << ENDL << "Peerlist white:" << ENDL << print_peerlist_to_string(pl_wite) ;
+    return true;
+  }
+
+//-----------------------------------------------------------------------------------
+
+  bool NodeServer::log_peerlist_gray()
+  {
+    std::list<PeerlistEntry> pl_gray;
+    m_peerlist.get_peerlist_gray(pl_gray);
+    logger(INFO) << ENDL << "Peerlist gray:" << ENDL << print_peerlist_to_string(pl_gray) ;
+    return true;
+  }
+
+//-----------------------------------------------------------------------------------
+
   bool NodeServer::log_peerlist()
   {
     std::list<PeerlistEntry> pl_wite;

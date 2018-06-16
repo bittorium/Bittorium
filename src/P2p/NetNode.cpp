@@ -125,9 +125,9 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
   time_t now_time = 0;
   time(&now_time);
   std::stringstream ss;
-  ss << std::setfill('0') << std::setw(8) << std::hex << std::noshowbase;
+  ss << std::setfill('0') << std::hex << std::noshowbase;
   for (const auto& pe : pl) {
-    ss << pe.id << "\t" << pe.adr << " \tlast_seen: " << Common::timeIntervalToString(now_time - pe.last_seen) << std::endl;
+    ss << std::setw(8) << pe.id << "\t" << pe.adr << " \tlast_seen: " << Common::timeIntervalToString(now_time - pe.last_seen) << std::endl;
   }
   return ss.str();
 }

@@ -26,7 +26,7 @@ RUN apt-get update && \
       git cmake \
       libboost1.58-all-dev \
       librocksdb-dev && \
-    git clone https://github.com/pinkstarcoinv2/pinkstarcoinv2.git /src/pinkstarcoinv2 && \
+    git clone https://github.com/Jachi84/pinkstarcoinv2.git /src/pinkstarcoinv2 && \
     cd /src/pinkstarcoinv2 && \
     git checkout $PINKSTARCOINV2_VERSION && \
     mkdir build && \

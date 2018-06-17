@@ -60,6 +60,8 @@ DaemonCommandsHandler::DaemonCommandsHandler(CryptoNote::Core& core, CryptoNote:
   m_consoleHandler.setHandler("exit", boost::bind(&DaemonCommandsHandler::exit, this, _1), "Shutdown the daemon");
   m_consoleHandler.setHandler("help", boost::bind(&DaemonCommandsHandler::help, this, _1), "Show this help");
   m_consoleHandler.setHandler("print_pl", boost::bind(&DaemonCommandsHandler::print_pl, this, _1), "Print peer list");
+  m_consoleHandler.setHandler("print_pl_white", boost::bind(&DaemonCommandsHandler::print_pl_white, this, _1), "Print white peer list");
+  m_consoleHandler.setHandler("print_pl_gray", boost::bind(&DaemonCommandsHandler::print_pl_gray, this, _1), "Print gray peer list");
   m_consoleHandler.setHandler("print_cn", boost::bind(&DaemonCommandsHandler::print_cn, this, _1), "Print connections");
   m_consoleHandler.setHandler("print_bc", boost::bind(&DaemonCommandsHandler::print_bc, this, _1), "Print blockchain info in a given blocks range, print_bc <begin_height> [<end_height>]");
   //m_consoleHandler.setHandler("print_bci", boost::bind(&DaemonCommandsHandler::print_bci, this, _1));
@@ -99,6 +101,16 @@ bool DaemonCommandsHandler::help(const std::vector<std::string>& args) {
 //--------------------------------------------------------------------------------
 bool DaemonCommandsHandler::print_pl(const std::vector<std::string>& args) {
   m_srv.log_peerlist();
+  return true;
+}
+//--------------------------------------------------------------------------------
+bool DaemonCommandsHandler::print_pl_white(const std::vector<std::string>& args) {
+  m_srv.log_peerlist_white();
+  return true;
+}
+//--------------------------------------------------------------------------------
+bool DaemonCommandsHandler::print_pl_gray(const std::vector<std::string>& args) {
+  m_srv.log_peerlist_gray();
   return true;
 }
 //--------------------------------------------------------------------------------

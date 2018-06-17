@@ -69,6 +69,8 @@ public:
   size_t get_gray_peers_count() const { return m_peers_gray.size(); }
   bool merge_peerlist(const std::list<PeerlistEntry>& outer_bs);
   bool get_peerlist_head(std::list<PeerlistEntry>& bs_head, uint32_t depth = CryptoNote::P2P_DEFAULT_PEERS_IN_HANDSHAKE) const;
+  bool get_peerlist_white(std::list<PeerlistEntry>& pl_white) const;
+  bool get_peerlist_gray(std::list<PeerlistEntry>& pl_gray) const;
   bool get_peerlist_full(std::list<PeerlistEntry>& pl_gray, std::list<PeerlistEntry>& pl_white) const;
   bool get_white_peer_by_index(PeerlistEntry& p, size_t i) const;
   bool get_gray_peer_by_index(PeerlistEntry& p, size_t i) const;

@@ -125,9 +125,9 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
   time_t now_time = 0;
   time(&now_time);
   std::stringstream ss;
-  ss << std::setfill('0') << std::setw(8) << std::hex << std::noshowbase;
+  ss << std::setfill('0') << std::hex << std::noshowbase;
   for (const auto& pe : pl) {
-    ss << pe.id << "\t" << pe.adr << " \tlast_seen: " << Common::timeIntervalToString(now_time - pe.last_seen) << std::endl;
+    ss << std::setw(8) << pe.id << "\t" << pe.adr << " \tlast_seen: " << Common::timeIntervalToString(now_time - pe.last_seen) << std::endl;
   }
   return ss.str();
 }
@@ -1206,6 +1206,26 @@ std::string print_peerlist_to_string(const std::list<PeerlistEntry>& pl) {
     return 1;
   }
   //-----------------------------------------------------------------------------------
+
+  bool NodeServer::log_peerlist_white()
+  {
+    std::list<PeerlistEntry> pl_wite;
+    m_peerlist.get_peerlist_white(pl_wite);
+    logger(INFO) << ENDL << "Peerlist white:" << ENDL << print_peerlist_to_string(pl_wite) ;
+    return true;
+  }
+
+//-----------------------------------------------------------------------------------
+
+  bool NodeServer::log_peerlist_gray()
+  {
+    std::list<PeerlistEntry> pl_gray;
+    m_peerlist.get_peerlist_gray(pl_gray);
+    logger(INFO) << ENDL << "Peerlist gray:" << ENDL << print_peerlist_to_string(pl_gray) ;
+    return true;
+  }
+
+//-----------------------------------------------------------------------------------
 
   bool NodeServer::log_peerlist()
   {

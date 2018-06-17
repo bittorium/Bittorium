@@ -171,6 +171,26 @@ bool PeerlistManager::get_peerlist_head(std::list<PeerlistEntry>& bs_head, uint3
 }
 //--------------------------------------------------------------------------------------------------
 
+bool PeerlistManager::get_peerlist_white(std::list<PeerlistEntry>& pl_white) const
+{
+  const peers_indexed::index<by_time>::type& by_time_index_wt = m_peers_white.get<by_time>();
+
+  std::copy(by_time_index_wt.rbegin(), by_time_index_wt.rend(), std::back_inserter(pl_white));
+
+  return true;
+}
+//--------------------------------------------------------------------------------------------------
+
+bool PeerlistManager::get_peerlist_gray(std::list<PeerlistEntry>& pl_gray) const
+{
+  const peers_indexed::index<by_time>::type& by_time_index_gr = m_peers_gray.get<by_time>();
+
+  std::copy(by_time_index_gr.rbegin(), by_time_index_gr.rend(), std::back_inserter(pl_gray));
+
+  return true;
+}
+//--------------------------------------------------------------------------------------------------
+
 bool PeerlistManager::get_peerlist_full(std::list<PeerlistEntry>& pl_gray, std::list<PeerlistEntry>& pl_white) const
 {
   const peers_indexed::index<by_time>::type& by_time_index_gr = m_peers_gray.get<by_time>();

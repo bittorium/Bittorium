@@ -61,6 +61,7 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #ifdef _MSC_VER
+#pragma warning(disable : 4189)
 #define __attribute__(A)
 
 // Thread local storage on Linux

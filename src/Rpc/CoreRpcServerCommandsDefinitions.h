@@ -189,6 +189,11 @@ struct COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_request {
 struct COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS_out_entry {
   uint32_t global_amount_index;
   Crypto::PublicKey out_key;
+
+  void serialize(ISerializer &s) {
+    KV_MEMBER(global_amount_index)
+    KV_MEMBER(out_key)
+  }
 };
 #pragma pack(pop)
 

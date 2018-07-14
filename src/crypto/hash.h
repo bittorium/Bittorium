@@ -47,7 +47,11 @@ namespace Crypto {
   public:
 
     cn_context();
+#if defined(WIN32)
+    ~cn_context() noexcept(false);
+#else
     ~cn_context();
+#endif
 #if !defined(_MSC_VER) || _MSC_VER >= 1800
     cn_context(const cn_context &) = delete;
     void operator=(const cn_context &) = delete;

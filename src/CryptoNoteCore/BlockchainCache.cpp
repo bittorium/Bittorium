@@ -897,6 +897,11 @@ uint32_t BlockchainCache::getTopBlockIndex() const {
   return startIndex + static_cast<uint32_t>(blockInfos.size()) - 1;
 }
 
+const Crypto::Hash& BlockchainCache::getStartBlockHash() const {
+  assert(!blockInfos.empty());
+  return blockInfos.get<BlockIndexTag>().front().blockHash;
+}
+
 const Crypto::Hash& BlockchainCache::getTopBlockHash() const {
   assert(!blockInfos.empty());
   return blockInfos.get<BlockIndexTag>().back().blockHash;

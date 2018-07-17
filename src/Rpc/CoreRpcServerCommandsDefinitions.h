@@ -584,6 +584,34 @@ struct COMMAND_RPC_GET_BLOCK_HEADER_BY_HEIGHT {
   typedef BLOCK_HEADER_RESPONSE response;
 };
 
+struct COMMAND_RPC_GET_ALTERNATE_CHAINS {
+  typedef EMPTY_STRUCT request;
+
+  struct chain_info {
+    std::string block_hash;
+    uint32_t height;
+    uint32_t length;
+    Difficulty difficulty;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(block_hash)
+      KV_MEMBER(height)
+      KV_MEMBER(length)
+      KV_MEMBER(difficulty)
+    }
+  };
+
+  struct response {
+    std::string status;
+    std::list<chain_info> chains;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(status)
+      KV_MEMBER(chains)
+    }
+  };
+};
+
 struct F_COMMAND_RPC_GET_BLOCKS_LIST {
   struct request {
     uint64_t height;

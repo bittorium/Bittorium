@@ -112,6 +112,7 @@ public:
       std::function<ExtractOutputKeysResult(const CachedTransactionInfo& info, PackedOutIndex index, uint32_t globalIndex)> pred) const = 0;
 
   virtual uint32_t getTopBlockIndex() const = 0;
+  virtual const Crypto::Hash& getStartBlockHash() const = 0;
   virtual const Crypto::Hash& getTopBlockHash() const = 0;
   virtual uint32_t getBlockCount() const = 0;
   virtual bool hasBlock(const Crypto::Hash& blockHash) const = 0;

@@ -101,6 +101,7 @@ public:
   //ICoreInformation
   virtual size_t getPoolTransactionCount() const override;
   virtual size_t getBlockchainTransactionCount() const override;
+  virtual altChainList getAlternateChains() const override;
   virtual size_t getAlternativeBlockCount() const override;
   virtual uint64_t getTotalGeneratedAmount() const override;
   virtual std::vector<BlockTemplate> getAlternativeBlocks() const override;

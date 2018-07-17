@@ -1158,6 +1158,14 @@ size_t Core::getBlockchainTransactionCount() const {
   return mainChain->getTransactionCount();
 }
 
+altChainList Core::getAlternateChains() const {
+  altChainList altList;
+  for (size_t i = 1; i < chainsLeaves.size(); i++) {
+    altList.push_back({ chainsLeaves[i], chainsLeaves[i]->getBlockCount() });
+  }
+  return altList;
+}
+
 size_t Core::getAlternativeBlockCount() const {
   throwIfNotInitialized();
 

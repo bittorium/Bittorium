@@ -119,6 +119,7 @@ public:
   ExtractOutputKeysResult extractKeyOtputReferences(uint64_t amount, Common::ArrayView<uint32_t> globalIndexes, std::vector<std::pair<Crypto::Hash, size_t>>& outputReferences) const override;
 
   uint32_t getTopBlockIndex() const override;
+  const Crypto::Hash& getStartBlockHash() const override;
   const Crypto::Hash& getTopBlockHash() const override;
   uint32_t getBlockCount() const override;
   bool hasBlock(const Crypto::Hash& blockHash) const override;

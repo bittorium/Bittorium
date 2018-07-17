@@ -1172,11 +1172,11 @@ bool parseAddress(std::string address)
         return false;
     }
     /* Can't see an easy way to go from prefix num -> prefix string, so for
-       now just hard code "PSTAR" - it will let testers send stuff at least */
+       now just hard code "P6" - it will let testers send stuff at least */
     else if (prefix != expectedPrefix)
     {
         std::cout << WarningMsg("Invalid address! It should start with "
-                                "\"PSTAR\"!") << std::endl << std::endl;
+                                "\"P6\"!") << std::endl << std::endl;
 
         return false;
     }

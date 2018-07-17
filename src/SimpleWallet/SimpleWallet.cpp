@@ -283,7 +283,7 @@ std::shared_ptr<WalletInfo> createViewWallet(CryptoNote::WalletGreen &wallet)
         else if (address.substr(0, 2) != "P6")
         {
             std::cout << WarningMsg("Invalid address! It should start with "
-                                    "\"PSTAR\"!") << std::endl;
+                                    "\"P6\"!") << std::endl;
         }
         else if (!CryptoNote::parseAccountAddressString(prefix, publicKeys,
                                                         address))

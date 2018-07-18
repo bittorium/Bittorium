@@ -24,7 +24,11 @@ typedef std::list<std::pair<IBlockchainCache *, uint32_t>> altChainList;
 
 class ICoreInformation {
 public:
+#if defined(WIN32)
+  virtual ~ICoreInformation() noexcept(false) {}
+#else
   virtual ~ICoreInformation() {}
+#endif
 
   virtual size_t getPoolTransactionCount() const = 0;
   virtual size_t getBlockchainTransactionCount() const = 0;

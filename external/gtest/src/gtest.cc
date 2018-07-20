@@ -1893,7 +1893,12 @@ Test::Test()
 }
 
 // The d'tor restores the values of all Google Test flags.
-Test::~Test() {
+#if defined(WIN32)
+Test::~Test() noexcept(false)
+#else
+Test::~Test()
+#endif
+{
   delete gtest_flag_saver_;
 }
 

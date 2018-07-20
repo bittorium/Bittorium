@@ -174,10 +174,10 @@ void sendMultipleTransactions(CryptoNote::WalletGreen &wallet,
                       << formatAmount(wallet.getActualBalance())
                       << std::endl << "Locked balance: "
                       << formatAmount(wallet.getPendingBalance())
-                      << std::endl << "Will try again in 5 seconds..."
+                      << std::endl << "Will try again in 15 seconds..."
                       << std::endl << std::endl;
 
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::this_thread::sleep_for(std::chrono::seconds(15));
         }
 
         currentTx++;
@@ -492,10 +492,10 @@ bool optimize(CryptoNote::WalletGreen &wallet, uint64_t threshold)
             }
             
             std::cout << std::endl
-                      << SuccessMsg("Will try again in 5 seconds...")
+                      << SuccessMsg("Will try again in 15 seconds...")
                       << std::endl;
 
-            std::this_thread::sleep_for(std::chrono::seconds(5));
+            std::this_thread::sleep_for(std::chrono::seconds(15));
 
             wallet.updateInternalCache();
         }
@@ -548,10 +548,10 @@ void fusionTX(CryptoNote::WalletGreen &wallet,
         std::cout << WarningMsg("Optimization completed, but balance "
                                 "is not fully unlocked yet!")
                   << std::endl
-                  << SuccessMsg("Will try again in 5 seconds...")
+                  << SuccessMsg("Will try again in 15 seconds...")
                   << std::endl;
 
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        std::this_thread::sleep_for(std::chrono::seconds(15));
     }
 
     try

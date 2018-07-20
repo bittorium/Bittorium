@@ -354,7 +354,11 @@ class GTEST_API_ Test {
   typedef internal::TearDownTestCaseFunc TearDownTestCaseFunc;
 
   // The d'tor is virtual as we intend to inherit from Test.
+#if defined(WIN32)
+  virtual ~Test() noexcept(false);
+#else
   virtual ~Test();
+#endif
 
   // Sets up the stuff shared by all tests in this test case.
   //

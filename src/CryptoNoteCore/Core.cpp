@@ -1056,6 +1056,23 @@ bool Core::getBlockTemplate(BlockTemplate& b, const AccountPublicAddress& adr, c
   b.previousBlockHash = getTopBlockHash();
   b.timestamp = time(nullptr);
 
+  uint64_t blockchain_timestamp_check_window = parameters::BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW;
+  /* Skip the first N blocks, we don't have enough blocks to calculate a proper median yet */
+  if (height >= blockchain_timestamp_check_window)
+  {
+      std::vector<uint64_t> timestamps;
+      /* For the last N blocks, get their timestamps */
+      for (size_t offset = height - blockchain_timestamp_check_window; offset < height; offset++)
+      {
+          timestamps.push_back(getBlockTimestampByIndex(offset));
+      }
+      uint64_t medianTimestamp = Common::medianValue(timestamps);
+      if (b.timestamp < medianTimestamp)
+      {
+          b.timestamp = medianTimestamp;
+      }
+  }
+
   size_t medianSize = calculateCumulativeBlocksizeLimit(height) / 2;
 
   assert(!chainsStorage.empty());

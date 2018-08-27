@@ -880,4 +880,17 @@ struct COMMAND_RPC_GET_PEERSGRAY {
   };
 };
 
+struct COMMAND_RPC_GET_ISSUED_COINS {
+  typedef EMPTY_STRUCT request;
+
+  struct response {
+    std::string alreadyGeneratedCoins;
+    std::string status;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(alreadyGeneratedCoins)
+      KV_MEMBER(status)
+    }
+  };
+};
 }

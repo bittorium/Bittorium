@@ -10,8 +10,8 @@
 
 ##### Building
 
-- `git clone https://github.com/Jachi84/PinkstarcoinV2.git`
-- `cd PinkstarcoinV2`
+- `git clone https://github.com/Bittorium/Bittorium.git`
+- `cd Bittorium`
 - `rm -rf build; mkdir -p build/release; cd build/release`
 - `cmake -D STATIC=ON -D ARCH="default" -D CMAKE_BUILD_TYPE=Release ../..`
 - `PORTABLE=1 make`
@@ -26,8 +26,8 @@
 
 ##### Building
 
-- `git clone https://github.com/Jachi84/PinkstarcoinV2.git`
-- `cd PinkstarcoinV2`
+- `git clone https://github.com/Bittorium/Bittorium.git`
+- `cd Bittorium`
 - `rm -rf build; mkdir -p build/release; cd build/release`
 - `cmake ..` or `cmake -DBOOST_ROOT=<path_to_boost_install> ..` when building
   from a specific boost install. If you used brew to install boost, your path is most likely `/usr/local/include/boost.`
@@ -47,12 +47,12 @@ Run `./src/Bittoriumd` to connect to the network and let it sync (it may take a 
 ##### Building
 
 - From the start menu, open 'x64 Native Tools Command Prompt for vs2017'.
-- `cd <your_pinkstarcoinv2_directory>`
+- `cd <your_Bittorium_directory>`
 - `mkdir build`
 - `cd build`
 - Set the PATH variable for cmake: ie. `set PATH="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin";%PATH%`
-- `cmake.exe -DBOOST_ROOT=C:\boost_1_64_0 -DBOOST_LIBRARYDIR=C:\boost_1_64_0\libs -G "Visual Studio 15 Win64" C:\...\PinkstarcoinV2
-- `Open PinkstarcoinV2.sln in "Visual Studio" and compile the binaries
+- `cmake.exe -DBOOST_ROOT=C:\boost_1_64_0 -DBOOST_LIBRARYDIR=C:\boost_1_64_0\libs -G "Visual Studio 15 Win64" C:\...\Bittorium
+- `Open Bittorium.sln in "Visual Studio" and compile the binaries
 - If all went well, it will complete successfully, and you will find all your binaries in the '..\build\src\Release' directory.
 - Additionally, a `.sln` file will have been created in the `build` directory. If you wish to open the project in Visual Studio with this, you can.
 

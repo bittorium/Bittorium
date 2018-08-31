@@ -621,6 +621,7 @@ bool RpcServer::f_on_blocks_list_json(const F_COMMAND_RPC_GET_BLOCKS_LIST::reque
     block_short.cumul_size = blkDetails.blockSize;
     block_short.timestamp = blk.timestamp;
     block_short.difficulty = blkDetails.difficulty;
+    block_short.reward = blkDetails.reward;
     block_short.height = i;
     block_short.hash = Common::podToHex(block_hash);
     block_short.tx_count = blk.transactionHashes.size() + 1;

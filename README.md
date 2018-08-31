@@ -35,7 +35,7 @@
 
 The binaries will be in `./src` after compilation is complete.
 
-Run `./src/PinkstarcoinV2d` to connect to the network and let it sync (it may take a while).
+Run `./src/Bittoriumd` to connect to the network and let it sync (it may take a while).
 
 #### Windows 10
 
@@ -57,5 +57,5 @@ Run `./src/PinkstarcoinV2d` to connect to the network and let it sync (it may ta
 - Additionally, a `.sln` file will have been created in the `build` directory. If you wish to open the project in Visual Studio with this, you can.
 
 #### Thanks
-Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Developers, Forknote Project, PinkstarcoinV2 Developers
-"# PinkstarcoinV2" 
+Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Developers, Forknote Project, PinkstarcoinV2 Developers, Bittorium Developers.
+"# Bittorium" 

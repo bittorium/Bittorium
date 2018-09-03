@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Bittoirum Multi-installer
 # a one line clone-and-compile for Bittorium:
 #
@@ -7,6 +6,7 @@
 #
 # Supports Ubuntu 16.04 LTS, OSX 10.10+
 # Supports building project from current directory (automatic detection)
+#Thanks to pinkstarcoin 
 
 set -o errexit
 set -o pipefail

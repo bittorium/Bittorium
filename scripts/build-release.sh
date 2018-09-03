@@ -8,7 +8,7 @@ BUILD_DIRECTORY=$2
 function usage()
 {
     echo "This script builds the dynamically and statically linked version"
-    echo "and generates the checksum files of the PinkstarcoinV2 tag provided."
+    echo "and generates the checksum files of the Bittorium tag provided."
     echo
     echo "USAGE: $0 <tag> <build-directory>"
     echo
@@ -71,7 +71,7 @@ function generate_tarball()
     tar --transform "s,^,$RELEASE_NAME/," -c -f $TARBALL -z -C "$CLONE_DIR/build/release/src" \
         miner \
         simplewallet \
-        PinkstarcoinV2d \
+        Bittoriumd \
         walletd
 
     generate_checksums $TARBALL
@@ -115,11 +115,11 @@ then
 fi
 
 # -- Config
-GITHUB_REPO="https://github.com/pinkstarcoinv2/pinkstarcoinv2.git"
-CLONE_DIR="$BUILD_DIRECTORY/pinkstarcoinv2-buildall"
-TARGET_DIR="$BUILD_DIRECTORY/pinkstarcoinv2-releases"
-DYNAMIC_RELEASE="pinkstarcoinv2-${TAG_VERSION}-linux-CLI"
-STATIC_RELEASE="pinkstarcoinv2-${TAG_VERSION}-linux-staticboost-CLI"
+GITHUB_REPO="https://github.com/bittorium/Bittorium.git"
+CLONE_DIR="$BUILD_DIRECTORY/bittorium-buildall"
+TARGET_DIR="$BUILD_DIRECTORY/bittorium-releases"
+DYNAMIC_RELEASE="bittorium-${TAG_VERSION}-linux-CLI"
+STATIC_RELEASE="bittorium-${TAG_VERSION}-linux-staticboost-CLI"
 
 checkout_tag
 build_static_linked_version

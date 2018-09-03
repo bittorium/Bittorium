@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-# dev-build.sh - pull a copy of pinkstarcoinv2-master 
+# dev-build.sh - pull a copy of Bittorium-master 
 # and put it inside a timestamped folder.
 
-git clone https://github.com/pinkstarcoinv2/pinkstarcoinv2 pinkstar-dev-build-$(date +%F) 
-# clone pinkstarcoinv2-master in timestamped folder
+git clone https://github.com/bittorium/Bittorium Bittorium-dev-build-$(date +%F) 
+# clone Bittorium-master in timestamped folder
 
 cd $_ && mkdir build && cd $_ 
 # make and move to a build directory to work in 

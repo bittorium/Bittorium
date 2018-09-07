@@ -1,6 +1,7 @@
 /*
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
+Copyright (C) 2018, The Bittorium developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +37,7 @@ std::string formatAmount(uint64_t amount)
     uint64_t dollars = amount / 100;
     uint64_t cents = amount % 100;
 
-    return formatDollars(dollars) + "." + formatCents(cents) + " PSTAR";
+    return formatDollars(dollars) + "." + formatCents(cents) + "BTOR";
 }
 
 std::string formatDollars(uint64_t amount)
@@ -44,7 +45,7 @@ std::string formatDollars(uint64_t amount)
     /* We want to format our number with comma separators so it's easier to
        use. Now, we could use the nice print_money() function to do this.
        However, whilst this initially looks pretty handy, if we have a locale
-       such as ja_JP.utf8, 1 PSTAR will actually be formatted as 100 PSTAR, which
+       such as ja_JP.utf8, 1 BTOR will actually be formatted as 100 BTOR, which
        is terrible, and could really screw over users.
 
        So, easy solution right? Just use en_US.utf8! Sure, it's not very

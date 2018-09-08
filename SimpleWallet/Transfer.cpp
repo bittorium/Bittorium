@@ -1,6 +1,7 @@
 /*
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
+Copyright (C) 2018, The Bittorium developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -227,8 +228,8 @@ void splitTx(CryptoNote::WalletGreen &wallet,
                  (std::ceil(double(txSize) / double(maxSize))));
 
         /* Split the requested fee over each transaction, i.e. if a fee of 200
-           PSTAR was requested and we split it into 4 transactions each one will
-           have a fee of 5 PSTAR. If the fee per transaction is less than the
+           BTOR was requested and we split it into 4 transactions each one will
+           have a fee of 5 BTOR. If the fee per transaction is less than the
            min fee, use the min fee. */
         uint64_t feePerTx = std::max (p.fee / numTransactions, minFee);
 
@@ -926,7 +927,7 @@ void doTransfer(uint16_t mixin, std::string address, uint64_t amount,
             {
                 std::cout << WarningMsg("Couldn't connect to the network to "
                                         "send the transaction!") << std::endl
-                          << "Ensure PinkstarcoinV2d or the remote node you are "
+                          << "Ensure Bittoriumd or the remote node you are "
                           << "using is open and functioning." << std::endl;
             }
             else if (retried)
@@ -1010,7 +1011,7 @@ Maybe<uint64_t> getFee()
         std::cout << std::endl 
                   << InformationMsg("What fee do you want to use?")
                   << std::endl
-                  << "Hit enter for the default fee of 0.01 PSTAR: ";
+                  << "Hit enter for the default fee of 0.01 BTOR: ";
 
         std::getline(std::cin, stringAmount);
 
@@ -1071,7 +1072,7 @@ Maybe<uint64_t> getTransferAmount()
         std::string stringAmount;
 
         std::cout << std::endl
-                  << InformationMsg("How much PSTAR do you want to send?: ");
+                  << InformationMsg("How much BTOR do you want to send?: ");
 
         std::getline(std::cin, stringAmount);
 
@@ -1130,7 +1131,7 @@ bool parseFee(std::string feeString)
     }
     else if (fee < CryptoNote::parameters::MINIMUM_FEE)
     {
-        std::cout << WarningMsg("Fee must be at least 0.01 PSTAR!") << std::endl;
+        std::cout << WarningMsg("Fee must be at least 0.01 BTOR!") << std::endl;
         return false;
     }
 
@@ -1173,11 +1174,11 @@ bool parseAddress(std::string address)
         return false;
     }
     /* Can't see an easy way to go from prefix num -> prefix string, so for
-       now just hard code "P6" - it will let testers send stuff at least */
+       now just hard code "bT" - it will let testers send stuff at least */
     else if (prefix != expectedPrefix)
     {
         std::cout << WarningMsg("Invalid address! It should start with "
-                                "\"P6\"!") << std::endl << std::endl;
+                                "\"bT\"!") << std::endl << std::endl;
 
         return false;
     }
@@ -1224,7 +1225,7 @@ bool parseAmount(std::string amountString)
         std::cout << WarningMsg("Failed to parse amount! Ensure you entered "
                                 "the value correctly.")
                   << std::endl
-                  << "Please note, the minimum you can send is 0.01 PSTAR,"
+                  << "Please note, the minimum you can send is 0.01 BTOR,"
                   << std::endl
                   << "and you can only use 2 decimal places."
                   << std::endl;

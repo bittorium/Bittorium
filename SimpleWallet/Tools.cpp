@@ -1,6 +1,7 @@
 /*
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
+Copyright (C) 2018, The Bittorium developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +37,7 @@ std::string formatAmount(uint64_t amount)
     uint64_t dollars = amount / 100;
     uint64_t cents = amount % 100;
 
-    return formatDollars(dollars) + "." + formatCents(cents) + " PSTAR";
+    return formatDollars(dollars) + "." + formatCents(cents) + "BTOR";
 }
 
 std::string formatDollars(uint64_t amount)

@@ -282,15 +282,15 @@ std::shared_ptr<WalletInfo> createViewWallet(CryptoNote::WalletGreen &wallet)
                       << "It should be 99 characters long, but it is "
                       << address.length() << " characters long!" << std::endl;
         }
-        else if (address.substr(0, 2) != "P6")
+        else if (address.substr(0, 2) != "bT")
         {
             std::cout << WarningMsg("Invalid address! It should start with "
-                                    "\"P6\"!") << std::endl;
+                                    "\"bT\"!") << std::endl;
         }
         else if (!CryptoNote::parseAccountAddressString(prefix, publicKeys,
                                                         address))
         {
-            std::cout << WarningMsg("Failed to parse PSTAR address! Ensure you "
+            std::cout << WarningMsg("Failed to parse BTOR address! Ensure you "
                                     "have entered it correctly.")
                       << std::endl;
         }
@@ -881,7 +881,7 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
         std::string command = getInputAndDoWorkWhileIdle(walletInfo);
 
         /* Split into args to support legacy transfer command, for example
-           transfer 5 P6xyzbf... 100, sends 100 PSTAR to P6xyzbf... with a mixin
+           transfer 5 bTxyzbf... 100, sends 100 BTOR to bTxyzbf... with a mixin
            of 5 */
         std::vector<std::string> words;
         words = boost::split(words, command, ::isspace);
@@ -1002,7 +1002,7 @@ void help(bool viewWallet)
     if (viewWallet)
     {
         std::cout << InformationMsg("Please note you are using a view only "
-                                    "wallet, and so cannot transfer PSTAR.")
+                                    "wallet, and so cannot transfer BTOR.")
                   << std::endl;
     }
     else
@@ -1018,7 +1018,7 @@ void help(bool viewWallet)
                   << "Fully optimize your wallet to send large amounts"
                   << std::endl
                   << SuccessMsg("transfer", 25)
-                  << "Send PSTAR to someone" << std::endl;
+                  << "Send BTOR to someone" << std::endl;
     }
 }
 
@@ -1563,7 +1563,7 @@ ColouredMsg getPrompt(std::shared_ptr<WalletInfo> &walletInfo)
 
 void connectingMsg()
 {
-    std::cout << std::endl << "Making initial contact with PinkstarcoinV2d."
+    std::cout << std::endl << "Making initial contact with Bittoriumd."
               << std::endl
               << "Please wait, this sometimes can take a long time..."
               << std::endl << std::endl;

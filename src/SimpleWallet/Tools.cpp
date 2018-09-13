@@ -37,7 +37,7 @@ std::string formatAmount(uint64_t amount)
     uint64_t dollars = amount / 100;
     uint64_t cents = amount % 100;
 
-    return formatDollars(dollars) + "." + formatCents(cents) + "BTOR";
+    return formatDollars(dollars) + "." + formatCents(cents) + " BTOR";
 }
 
 std::string formatDollars(uint64_t amount)

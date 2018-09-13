@@ -109,7 +109,7 @@ _configure_linux() {
     elif [ "$(awk -F= '/^NAME/{print $2}' /etc/os-release)" = "\"Debian GNU/Linux\"" ]; then
         _configure_debian
     else
-        _fail "Your OS version isn't supported by this installer. Please consider adding support for your OS to the project ('https://github.com/pinkstarcoinv2')"
+        _fail "Your OS version isn't supported by this installer. Please consider adding support for your OS to the project ('https://github.com/bittorium')"
     fi
 }
 
@@ -138,7 +138,7 @@ _configure_os() {
             _configure_osx
             ;;
         *)
-            _fail "This installer only runs on OSX 10.10+ and Ubuntu 16.04+. Please consider adding support for your OS to the project ('https://github.com/pinkstarcoinv2')"
+            _fail "This installer only runs on OSX 10.10+ and Ubuntu 16.04+. Please consider adding support for your OS to the project ('https://github.com/bittorium')"
             ;;
     esac
     _note "Operating system configuration completed. You're halfway there!"

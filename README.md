@@ -13,8 +13,6 @@
 - `git clone https://github.com/Bittorium/Bittorium.git`
 - `cd Bittorium`
 - `rm -rf build; mkdir -p build/release; cd build/release`
-- `cd Bittorium/external/rocksdb/build_tools`
-- `chmod 755 version.sh`
 - `cd Bittorium/build/release`
 - `cmake -D STATIC=ON -D ARCH="default" -D CMAKE_BUILD_TYPE=Release ../..`
 - `PORTABLE=1 make`

@@ -26,7 +26,7 @@
 
 ##### Building
 
-- `git clone https://github.com/Bittorium/Bittorium.git`
+- `git clone https://github.com/bittorium/Bittorium.git`
 - `cd Bittorium`
 - `rm -rf build; mkdir -p build/release; cd build/release`
 - `cmake ..` or `cmake -DBOOST_ROOT=<path_to_boost_install> ..` when building

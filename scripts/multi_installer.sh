@@ -2,7 +2,7 @@
 # Bittoirum Multi-installer
 # a one line clone-and-compile for Bittorium:
 #
-#     ` $ curl -sL "https://raw.githubusercontent.com/bittorium/bittorium/master/multi_installer.sh" | bash
+#     ` $ curl -sL "https://raw.githubusercontent.com/bittorium/Bittorium/master/multi_installer.sh" | bash
 #
 # Supports Ubuntu 16.04 LTS, OSX 10.10+
 # Supports building project from current directory (automatic detection)

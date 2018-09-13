@@ -6,13 +6,16 @@
 ##### Prerequisites
 
 - You will need the following packages: boost (1.55 or higher), rocksdb, cmake, git, gcc (4.9 or higher), g++ (4.9 or higher), make, and python. Most of these should already be installed on your system.
-- `sudo apt-get -y install build-essential python-dev gcc-4.9 g++-4.9 git cmake libboost1.58-all-dev librocksdb-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev`
+- `sudo apt-get -y install build-essential python-dev gcc g++ git cmake libboost-all-dev libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev`
 
 ##### Building
 
 - `git clone https://github.com/Bittorium/Bittorium.git`
 - `cd Bittorium`
 - `rm -rf build; mkdir -p build/release; cd build/release`
+- `cd Bittorium/external/rocksdb/build_tools`
+- `chmod 755 version.sh`
+- `cd Bittorium/build/release`
 - `cmake -D STATIC=ON -D ARCH="default" -D CMAKE_BUILD_TYPE=Release ../..`
 - `PORTABLE=1 make`
 

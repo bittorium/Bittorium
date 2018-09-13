@@ -156,4 +156,3 @@ _note "Installation complete!"
 _note "Look in 'Bittorium/build/src/' for the executible binaries. See 'https://github.com/bittorium/Bittorium' for more project support."
 
 
-Thanks to Pinkstarcoin Team.

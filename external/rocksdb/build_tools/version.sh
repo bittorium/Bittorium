@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 if [ "$#" = "0" ]; then
   echo "Usage: $0 major|minor|patch|full"
   exit 1

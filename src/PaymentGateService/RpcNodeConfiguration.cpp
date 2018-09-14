@@ -28,7 +28,7 @@ RpcNodeConfiguration::RpcNodeConfiguration() {
 
 void RpcNodeConfiguration::initOptions(boost::program_options::options_description& desc) {
   desc.add_options()
-    ("daemon-address", po::value<std::string>()->default_value("localhost"), "PinkstarcoinV2d address")
+    ("daemon-address", po::value<std::string>()->default_value("localhost"), "Bittoriumd address")
     ("daemon-port", po::value<uint16_t>()->default_value(34916), "daemon port");
 }
 

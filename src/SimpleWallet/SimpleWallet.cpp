@@ -1470,7 +1470,7 @@ void findNewTransactions(CryptoNote::INode &node,
             {
                 std::string warning =
                     "Syncing may be stuck. Try restarting Bittoriumd.\n"
-                    "If this persists, visit"
+                    "If this persists, visit "
                     "https://bitcointalk.org/index.php?topic=5028348"
                     " for support.";
                 std::cout << WarningMsg(warning) << std::endl;

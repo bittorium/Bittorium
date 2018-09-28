@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -95,6 +96,7 @@ void NodeRpcProxy::resetInternalState() {
   lastLocalBlockHeaderInfo.difficulty = 0;
   lastLocalBlockHeaderInfo.reward = 0;
   m_knownTxs.clear();
+  m_feeaddress = "";
 }
 
 void NodeRpcProxy::init(const INode::Callback& callback) {
@@ -141,6 +143,13 @@ bool NodeRpcProxy::shutdown() {
   return true;
 }
 
+void NodeRpcProxy::feeAddressCallback(std::error_code ec) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  if (ec) {
+    m_feeaddress = "";
+  }
+}
+
 void NodeRpcProxy::workerThread(const INode::Callback& initialized_callback) {
   try {
     Dispatcher dispatcher;
@@ -158,6 +167,11 @@ void NodeRpcProxy::workerThread(const INode::Callback& initialized_callback) {
       assert(m_state == STATE_INITIALIZING);
       m_state = STATE_INITIALIZED;
       m_cv_initialized.notify_all();
+    }
+
+    {
+      std::error_code ec;
+      getFeeAddress(m_feeaddress, std::bind(&NodeRpcProxy::feeAddressCallback, this, ec));
     }
 
     updateNodeStatus();
@@ -347,6 +361,11 @@ BlockHeaderInfo NodeRpcProxy::getLastLocalBlockHeaderInfo() const {
   return lastLocalBlockHeaderInfo;
 }
 
+std::string NodeRpcProxy::getLastFeeAddress() const {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  return m_feeaddress;
+}
+
 void NodeRpcProxy::getBlockHashesByTimestamps(uint64_t timestampBegin, size_t secondsCount, std::vector<Crypto::Hash>& blockHashes, const Callback& callback) {
   std::lock_guard<std::mutex> lock(m_mutex);
   if (m_state != STATE_INITIALIZED) {
@@ -495,6 +514,16 @@ void NodeRpcProxy::getTransactions(const std::vector<Crypto::Hash>& transactionH
   }
 
   scheduleRequest(std::bind(&NodeRpcProxy::doGetTransactions, this, std::cref(transactionHashes), std::ref(transactions)), callback);
+}
+
+void NodeRpcProxy::getFeeAddress(std::string &feeAddress, const Callback& callback) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  if (m_state != STATE_INITIALIZED) {
+    callback(make_error_code(error::NOT_INITIALIZED));
+    return;
+  }
+
+  scheduleRequest(std::bind(&NodeRpcProxy::doGetFeeAddress, this, std::ref(feeAddress)), callback);
 }
 
 void NodeRpcProxy::isSynchronized(bool& syncStatus, const Callback& callback) {
@@ -712,6 +741,19 @@ std::error_code NodeRpcProxy::doGetTransactions(const std::vector<Crypto::Hash>&
   }
 
   transactions = std::move(resp.transactions);
+  return ec;
+}
+
+std::error_code NodeRpcProxy::doGetFeeAddress(std::string &feeAddress) {
+  COMMAND_RPC_GET_FEE_ADDRESS::request req = AUTO_VAL_INIT(req);
+  COMMAND_RPC_GET_FEE_ADDRESS::response resp = AUTO_VAL_INIT(resp);
+
+  std::error_code ec = jsonCommand("/feeaddress", req, resp);
+  if (ec) {
+    return ec;
+  }
+
+  feeAddress = std::move(resp.fee_address);
   return ec;
 }
 

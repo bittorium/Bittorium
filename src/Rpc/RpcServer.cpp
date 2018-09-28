@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2016-2018, The Karbowanec developers
 //
 // This file is part of Bytecoin.
 //
@@ -22,10 +23,12 @@
 
 // CryptoNote
 #include "Common/StringTools.h"
+#include "CryptoNoteCore/CryptoNoteFormatUtils.h"
 #include "CryptoNoteCore/CryptoNoteTools.h"
 #include "CryptoNoteCore/Core.h"
 #include "CryptoNoteCore/Miner.h"
 #include "CryptoNoteCore/TransactionExtra.h"
+#include "CryptoNoteCore/TransactionUtils.h"
 #include "CryptoNoteConfig.h"
 #include "CryptoNoteProtocol/CryptoNoteProtocolHandlerCommon.h"
 #include "P2p/NetNode.h"
@@ -128,6 +131,7 @@ std::unordered_map<std::string, RpcServer::RpcHandler<RpcServer::HandlerFunction
   { "/getheight", { jsonMethod<COMMAND_RPC_GET_HEIGHT>(&RpcServer::on_get_height), true } },
   { "/gettransactions", { jsonMethod<COMMAND_RPC_GET_TRANSACTIONS>(&RpcServer::on_get_transactions), false } },
   { "/sendrawtransaction", { jsonMethod<COMMAND_RPC_SEND_RAW_TX>(&RpcServer::on_send_raw_tx), false } },
+  { "/feeaddress", { jsonMethod<COMMAND_RPC_GET_FEE_ADDRESS>(&RpcServer::on_get_fee_address), true } },
   { "/stop_daemon", { jsonMethod<COMMAND_RPC_STOP_DAEMON>(&RpcServer::on_stop_daemon), true } },
   { "/getpeers", { jsonMethod<COMMAND_RPC_GET_PEERS>(&RpcServer::on_get_peers), true } },
   { "/getpeersgray", { jsonMethod<COMMAND_RPC_GET_PEERSGRAY>(&RpcServer::on_get_peersgray), true } },
@@ -228,8 +232,68 @@ std::vector<std::string> RpcServer::getCorsDomains() {
   return m_cors_domains;
 }
 
+bool RpcServer::setFeeAddress(const std::string& fee_address, const AccountPublicAddress& fee_acc) {
+  logger(INFO) << "Masternode fee address: " << fee_address;
+  m_fee_address = fee_address;
+  m_fee_acc = fee_acc;
+  return true;
+}
+
+bool RpcServer::setViewKey(const std::string& view_key) {
+  Crypto::Hash private_view_key_hash;
+  size_t size;
+  if (!Common::fromHex(view_key, &private_view_key_hash, sizeof(private_view_key_hash), size) || size != sizeof(private_view_key_hash)) {
+    logger(INFO) << "Could not parse private view key";
+    return false;
+  }
+  logger(INFO) << "Masternode view key: " << view_key;
+  m_view_key = *(struct Crypto::SecretKey *) &private_view_key_hash;
+  return true;
+}
+
 bool RpcServer::isCoreReady() {
   return m_core.getCurrency().isTestnet() || m_p2p.get_payload_object().isSynchronized();
+}
+
+bool RpcServer::masternode_check_incoming_tx(const BinaryArray& tx_blob) {
+  Crypto::Hash tx_hash = NULL_HASH;
+  Crypto::Hash tx_prefixt_hash = NULL_HASH;
+  Transaction tx;
+  if (!parseAndValidateTransactionFromBinaryArray(tx_blob, tx, tx_hash, tx_prefixt_hash)) {
+    logger(INFO) << "Could not parse tx from blob";
+    return false;
+  }
+  CryptoNote::TransactionPrefix transaction = *static_cast<const TransactionPrefix*>(&tx);
+
+  // Check if this is a fusion transaction
+  uint64_t inAmount = 0, outAmount = 0;
+  for (auto in : tx.inputs) {
+    inAmount += CryptoNote::getTransactionInputAmount(in);
+  }
+
+  for (auto out : tx.outputs) {
+    outAmount += CryptoNote::getTransactionOutputAmount(out);
+  }
+
+  if (inAmount == outAmount) {
+    logger(INFO) << "Masternode received fusion transaction, relaying with no fee check.";
+    return true;
+  }
+
+  // Check for outputs to masternode's wallet address
+  std::vector<uint32_t> out;
+  uint64_t amount;
+
+  if (!CryptoNote::findOutputsToAccount(transaction, m_fee_acc, m_view_key, out, amount)) {
+    logger(INFO) << "Could not find outputs to masternode fee address";
+    return false;
+  }
+
+  if (amount != 0) {
+    logger(INFO) << "Masternode received relayed transaction fee: " << m_core.getCurrency().formatAmount(amount) << " BTOR";
+    return true;
+  }
+  return false;
 }
 
 //
@@ -535,6 +599,14 @@ bool RpcServer::on_send_raw_tx(const COMMAND_RPC_SEND_RAW_TX::request& req, COMM
   Crypto::Hash transactionHash = Crypto::cn_fast_hash(transactions.back().data(), transactions.back().size());
   logger(DEBUGGING) << "transaction " << transactionHash << " came in on_send_raw_tx";
 
+  if (!m_fee_address.empty() && m_view_key != NULL_SECRET_KEY) {
+    if (!masternode_check_incoming_tx(transactions.back())) {
+      logger(INFO) << "Transaction not relayed due to lack of masternode fee";		
+      res.status = "Not relayed due to lack of node fee";
+      return true;
+    }
+  }
+
   if (!m_core.addTransactionToPool(transactions.back())) {
     logger(DEBUGGING) << "[on_send_raw_tx]: tx verification failed";
     res.status = "Failed";
@@ -556,6 +628,16 @@ bool RpcServer::on_stop_daemon(const COMMAND_RPC_STOP_DAEMON::request& req, COMM
     return false;
   }
 
+  return true;
+}
+
+bool RpcServer::on_get_fee_address(const COMMAND_RPC_GET_FEE_ADDRESS::request& req, COMMAND_RPC_GET_FEE_ADDRESS::response& res) {
+  if (m_fee_address.empty()) {
+    res.status = CORE_RPC_STATUS_OK;
+    return false;
+  }
+  res.fee_address = m_fee_address;
+  res.status = CORE_RPC_STATUS_OK;
   return true;
 }
 

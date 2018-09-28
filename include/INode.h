@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -99,6 +100,7 @@ public:
   virtual uint32_t getLocalBlockCount() const = 0;
   virtual uint32_t getKnownBlockCount() const = 0;
   virtual uint64_t getLastLocalBlockTimestamp() const = 0;
+  virtual std::string getLastFeeAddress() const = 0;
 
   virtual void getBlockHashesByTimestamps(uint64_t timestampBegin, size_t secondsCount, std::vector<Crypto::Hash>& blockHashes, const Callback& callback) = 0;
   virtual void getTransactionHashesByPaymentId(const Crypto::Hash& paymentId, std::vector<Crypto::Hash>& transactionHashes, const Callback& callback) = 0;
@@ -116,6 +118,7 @@ public:
   virtual void getBlocks(const std::vector<Crypto::Hash>& blockHashes, std::vector<BlockDetails>& blocks, const Callback& callback) = 0;
   virtual void getBlock(const uint32_t blockHeight, BlockDetails &block, const Callback& callback) = 0;
   virtual void getTransactions(const std::vector<Crypto::Hash>& transactionHashes, std::vector<TransactionDetails>& transactions, const Callback& callback) = 0;
+  virtual void getFeeAddress(std::string &feeAddress, const Callback& callback) = 0;
   virtual void isSynchronized(bool& syncStatus, const Callback& callback) = 0;
 };
 

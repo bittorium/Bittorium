@@ -2,6 +2,8 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
+Copyright (c) 2018, The Karbo developers
+
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,6 +20,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <SimpleWallet/SimpleWallet.h>
+#include <cstring>
+
+#include "Common/JsonValue.h"
+#include "Rpc/HttpClient.h"
+
+// Fee address is declared here so we can access it from other source files
+std::string remote_fee_address;
 
 int main(int argc, char **argv)
 {
@@ -55,6 +64,9 @@ int main(int argc, char **argv)
 
     System::Dispatcher localDispatcher;
     System::Dispatcher *dispatcher = &localDispatcher;
+
+    remote_fee_address = getFeeAddress(localDispatcher, config.host, config.port);
+
 
     /* Our connection to Bittoriumd */
     std::unique_ptr<CryptoNote::INode> node(
@@ -1583,4 +1595,54 @@ void viewWalletMsg()
               << "balance to a new wallet, and import this as a new view "
               << "wallet so your balance can be correctly observed."
               << std::endl << std::endl;
+}
+
+//----------------------------------------------------------------------------------------------------
+bool processServerFeeAddressResponse(const std::string& response, std::string& fee_address) {
+    try {
+        std::stringstream stream(response);
+        Common::JsonValue json;
+        stream >> json;
+
+        auto rootIt = json.getObject().find("fee_address");
+        if (rootIt == json.getObject().end()) {
+            return false;
+        }
+
+        fee_address = rootIt->second.getString();
+    }
+    catch (std::exception&) {
+        return false;
+    }
+
+    return true;
+}
+
+//----------------------------------------------------------------------------------------------------
+std::string getFeeAddress(System::Dispatcher &dispatcher, std::string daemon_host, uint16_t daemon_port) {
+
+  CryptoNote::HttpClient httpClient(dispatcher, daemon_host, daemon_port);
+
+  CryptoNote::HttpRequest req;
+  CryptoNote::HttpResponse res;
+
+  req.setUrl("/feeaddress");
+  try {
+	  httpClient.request(req, res);
+  }
+  catch (const std::exception& e) {
+      std::string errorMsg = e.what();
+	  std::cout << WarningMsg("Error connecting to the remote node: " + errorMsg) << std::endl;
+  }
+
+  if (res.getStatus() != CryptoNote::HttpResponse::STATUS_200) {
+	  std::cout << WarningMsg("Remote node returned code " + std::to_string(res.getStatus())) << std::endl;
+  }
+
+  std::string address;
+  if (!processServerFeeAddressResponse(res.getBody(), address)) {
+	  std::cout << WarningMsg("Failed to parse remote node response") << std::endl;
+  }
+
+  return address;
 }

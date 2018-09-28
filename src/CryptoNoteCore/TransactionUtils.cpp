@@ -89,6 +89,14 @@ const TransactionInput& getInputChecked(const CryptoNote::TransactionPrefix& tra
 
 // TransactionOutput helper functions
 
+uint64_t getTransactionOutputAmount(const TransactionOutput& out) {
+  if (out.target.type() == typeid(KeyOutput)) {
+    return out.amount;
+  }
+
+  return 0;
+}
+
 TransactionTypes::OutputType getTransactionOutputType(const TransactionOutputTarget& out) {
   if (out.type() == typeid(KeyOutput)) {
     return TransactionTypes::OutputType::Key;

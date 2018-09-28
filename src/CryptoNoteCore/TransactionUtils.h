@@ -32,6 +32,7 @@ const TransactionInput& getInputChecked(const CryptoNote::TransactionPrefix& tra
 bool isOutToKey(const Crypto::PublicKey& spendPublicKey, const Crypto::PublicKey& outKey, const Crypto::KeyDerivation& derivation, size_t keyIndex);
 
 // TransactionOutput helper functions
+uint64_t getTransactionOutputAmount(const TransactionOutput& out);
 TransactionTypes::OutputType getTransactionOutputType(const TransactionOutputTarget& out);
 const TransactionOutput& getOutputChecked(const CryptoNote::TransactionPrefix& transaction, size_t index);
 const TransactionOutput& getOutputChecked(const CryptoNote::TransactionPrefix& transaction, size_t index, TransactionTypes::OutputType type);

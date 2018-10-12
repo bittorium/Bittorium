@@ -913,4 +913,28 @@ struct COMMAND_RPC_GET_ISSUED_COINS {
     }
   };
 };
+
+struct COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT {
+  struct request {
+    std::string transaction;
+    std::string account;
+    std::string viewKey;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(transaction)
+      KV_MEMBER(account)
+      KV_MEMBER(viewKey)
+    }
+  };
+
+  struct response {
+    uint64_t amount;
+    std::string status;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(amount)
+      KV_MEMBER(status)
+    }
+  };
+};
 }

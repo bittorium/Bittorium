@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The Bittorium Project
 //
 // This file is part of Bytecoin.
 //
@@ -85,6 +86,7 @@ public:
 
   virtual RawBlock getBlockByIndex(uint32_t index) const = 0;
   virtual BinaryArray getRawTransaction(uint32_t blockIndex, uint32_t transactionIndex) const = 0;
+  virtual BinaryArray getRawTransaction(const Crypto::Hash &transaction) const = 0;
   virtual std::unique_ptr<IBlockchainCache> split(uint32_t splitBlockIndex) = 0;
   virtual void pushBlock(
       const CachedBlock& cachedBlock,

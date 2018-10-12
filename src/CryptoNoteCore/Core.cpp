@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -456,6 +457,39 @@ bool Core::queryBlocksLite(const std::vector<Crypto::Hash>& knownBlockHashes, ui
 	logger(Logging::ERROR) << "Failed to query blocks: " << e.what();
     return false;
   }
+}
+
+bool Core::getTransaction(const Crypto::Hash& transactionHash, BinaryArray& transaction) const {
+  assert(!chainsLeaves.empty());
+  assert(!chainsStorage.empty());
+  throwIfNotInitialized();
+
+  IBlockchainCache* segment = chainsLeaves[0];
+  assert(segment != nullptr);
+
+  // find in main chain
+  do {
+    if (segment->hasTransaction(transactionHash)) {
+      transaction = segment->getRawTransaction(transactionHash);
+      return true;
+    }
+    segment = segment->getParent();
+  } while (segment != nullptr);
+
+  // find in alternative chains
+  for (size_t chain = 1; chain < chainsLeaves.size(); ++chain) {
+    segment = chainsLeaves[chain];
+
+    while (mainChainSet.count(segment) == 0) {
+      if (segment->hasTransaction(transactionHash)) {
+        transaction = segment->getRawTransaction(transactionHash);
+        return true;
+      }
+      segment = segment->getParent();
+    }
+  }
+
+  return false;
 }
 
 void Core::getTransactions(const std::vector<Crypto::Hash>& transactionHashes, std::vector<BinaryArray>& transactions,

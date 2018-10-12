@@ -744,7 +744,7 @@ std::error_code NodeRpcProxy::doGetTransactions(const std::vector<Crypto::Hash>&
   return ec;
 }
 
-std::error_code NodeRpcProxy::doGetFeeAddress(std::string &feeAddress) {
+std::error_code NodeRpcProxy::doGetFeeAddress(std::string& feeAddress) {
   COMMAND_RPC_GET_FEE_ADDRESS::request req = AUTO_VAL_INIT(req);
   COMMAND_RPC_GET_FEE_ADDRESS::response resp = AUTO_VAL_INIT(resp);
 

@@ -85,7 +85,7 @@ public:
   virtual void getTransactions(const std::vector<Crypto::Hash>& transactionHashes, std::vector<CryptoNote::TransactionDetails>& transactions,
     const Callback& callback) override { }
 
-  virtual void getFeeAddress(std::string &feeAddress, const Callback& callback) override { }
+  virtual void getFeeAddress(std::string& feeAddress, const Callback& callback) override { }
 
   virtual void isSynchronized(bool& syncStatus, const Callback& callback) override { }
 

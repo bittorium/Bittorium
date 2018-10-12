@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -1487,6 +1488,38 @@ RawBlock DatabaseBlockchainCache::getBlockByIndex(uint32_t index) const {
 
 BinaryArray DatabaseBlockchainCache::getRawTransaction(uint32_t blockIndex, uint32_t transactionIndex) const {
   return getBlockByIndex(blockIndex).transactions.at(transactionIndex);
+}
+
+BinaryArray DatabaseBlockchainCache::getRawTransaction(const Crypto::Hash &transaction) const {
+  auto batch = BlockchainReadBatch().requestCachedTransaction(transaction);
+  auto res = readDatabase(batch);
+  for (auto& tx : res.getCachedTransactions()) {
+    batch.requestRawBlock(tx.second.blockIndex);
+  }
+
+  auto blocks = readDatabase(batch);
+
+  auto& hashesMap = res.getCachedTransactions();
+  auto& blocksMap = blocks.getRawBlocks();
+  auto transactionIt = hashesMap.find(transaction);
+  if (transactionIt == hashesMap.end()) {
+    logger(Logging::ERROR) << "detected missing transaction for hash " << transaction << " in getRawTransaction";
+    return BinaryArray();
+  }
+
+  auto blockIt = blocksMap.find(transactionIt->second.blockIndex);
+  if (blockIt == blocksMap.end()) {
+    logger(Logging::ERROR) << "detected missing transaction for hash " << transaction << " in getRawTransaction";
+    return BinaryArray();
+  }
+
+  if (transactionIt->second.transactionIndex == 0) {
+    auto block = fromBinaryArray<BlockTemplate>(blockIt->second.block);
+    return toBinaryArray(block.baseTransaction);
+  } else {
+    assert(blockIt->second.transactions.size() >= transactionIt->second.transactionIndex - 1);
+    return blockIt->second.transactions[transactionIt->second.transactionIndex - 1];
+  }
 }
 
 std::vector<Crypto::Hash> DatabaseBlockchainCache::getTransactionHashes() const {

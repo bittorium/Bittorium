@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -588,6 +589,16 @@ BinaryArray BlockchainCache::getRawTransaction(uint32_t index, uint32_t transact
     assert(rawBlock.transactions.size() >= transactionIndex - 1);
     return rawBlock.transactions[transactionIndex - 1];
   }
+}
+
+BinaryArray BlockchainCache::getRawTransaction(const Crypto::Hash &transaction) const {
+  auto& index = transactions.get<TransactionHashTag>();
+  auto it = index.find(transaction);
+  if (it == index.end()) {
+    return parent->getRawTransaction(transaction);
+  }
+
+  return getRawTransaction(it->blockIndex, it->transactionIndex);
 }
 
 std::vector<BinaryArray>

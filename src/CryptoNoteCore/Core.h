@@ -73,6 +73,7 @@ public:
     uint32_t& startIndex, uint32_t& currentIndex, uint32_t& fullOffset, std::vector<BlockShortInfo>& entries) const override;
 
   virtual bool hasTransaction(const Crypto::Hash& transactionHash) const override;
+  virtual bool getTransaction(const Crypto::Hash& transactionHash, BinaryArray& transaction) const;
   virtual void getTransactions(const std::vector<Crypto::Hash>& transactionHashes, std::vector<BinaryArray>& transactions, std::vector<Crypto::Hash>& missedHashes) const override;
 
   virtual Difficulty getBlockDifficulty(uint32_t blockIndex) const override;

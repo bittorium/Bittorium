@@ -144,7 +144,6 @@ bool NodeRpcProxy::shutdown() {
 }
 
 void NodeRpcProxy::feeAddressCallback(std::error_code ec) {
-  std::lock_guard<std::mutex> lock(m_mutex);
   if (ec) {
     m_feeaddress = "";
   }

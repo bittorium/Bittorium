@@ -66,6 +66,7 @@ public:
   virtual uint32_t getKnownBlockCount() const override;
   virtual uint64_t getLastLocalBlockTimestamp() const override;
   virtual std::string getLastFeeAddress() const override;
+  virtual std::string getLastCollateralHash() const override;
 
   virtual void getBlockHashesByTimestamps(uint64_t timestampBegin, size_t secondsCount, std::vector<Crypto::Hash>& blockHashes, const Callback& callback) override;
   virtual void getTransactionHashesByPaymentId(const Crypto::Hash& paymentId, std::vector<Crypto::Hash>& transactionHashes, const Callback& callback) override;
@@ -84,6 +85,7 @@ public:
   virtual void getBlock(const uint32_t blockHeight, BlockDetails &block, const Callback& callback) override;
   virtual void getTransactions(const std::vector<Crypto::Hash>& transactionHashes, std::vector<TransactionDetails>& transactions, const Callback& callback) override;
   virtual void getFeeAddress(std::string& feeAddress, const Callback& callback) override;
+  virtual void getCollateralHash(std::string &collateralHash, const Callback& callback) override;
   virtual void isSynchronized(bool& syncStatus, const Callback& callback) override;
 
   unsigned int rpcTimeout() const { return m_rpcTimeout; }
@@ -118,6 +120,7 @@ private:
   std::error_code doGetTransactionHashesByPaymentId(const Crypto::Hash& paymentId, std::vector<Crypto::Hash>& transactionHashes);
   std::error_code doGetTransactions(const std::vector<Crypto::Hash>& transactionHashes, std::vector<TransactionDetails>& transactions);
   std::error_code doGetFeeAddress(std::string& feeAddress);
+  std::error_code doGetCollateralHash(std::string& collateralHash);
 
   void scheduleRequest(std::function<std::error_code()>&& procedure, const Callback& callback);
   template <typename Request, typename Response>
@@ -162,7 +165,8 @@ private:
   std::unordered_set<Crypto::Hash> m_knownTxs;
 
   void feeAddressCallback(std::error_code ec);
-  std::string m_feeaddress;
+  void collateralHashCallback(std::error_code ec);
+  std::string m_feeaddress, m_collateralhash;
 
   bool m_connected;
 };

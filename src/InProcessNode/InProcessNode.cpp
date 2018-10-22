@@ -556,6 +556,10 @@ std::string InProcessNode::getLastFeeAddress() const {
   return "";
 }
 
+std::string InProcessNode::getLastCollateralHash() const {
+  return "";
+}
+
 void InProcessNode::getBlockHashesByTimestamps(uint64_t timestampBegin, size_t secondsCount, std::vector<Crypto::Hash>& blockHashes, const Callback& callback) {
   std::unique_lock<std::mutex> lock(mutex);
   if (state != INITIALIZED) {
@@ -894,6 +898,11 @@ std::error_code InProcessNode::doGetTransactions(const std::vector<Crypto::Hash>
 
 void InProcessNode::getFeeAddress(std::string& feeAddress, const Callback& callback) {
   feeAddress = "";
+  callback({});
+}
+
+void InProcessNode::getCollateralHash(std::string& collateralHash, const Callback &callback) {
+  collateralHash = "";
   callback({});
 }
 

@@ -45,6 +45,7 @@ public:
 
   bool setFeeAddress(const std::string& fee_address, const AccountPublicAddress& fee_acc);
   bool setViewKey(const std::string& view_key);
+  bool setCollateralHash(const std::string& collateral_hash);
   bool masternode_check_incoming_tx(const BinaryArray& tx_blob);
 
   bool on_get_block_headers_range(const COMMAND_RPC_GET_BLOCK_HEADERS_RANGE::request& req, COMMAND_RPC_GET_BLOCK_HEADERS_RANGE::response& res, JsonRpc::JsonRpcError& error_resp);
@@ -90,6 +91,7 @@ private:
   bool on_get_issued(const COMMAND_RPC_GET_ISSUED_COINS::request& req, COMMAND_RPC_GET_ISSUED_COINS::response& res);
   bool on_get_fee_address(const COMMAND_RPC_GET_FEE_ADDRESS::request& req, COMMAND_RPC_GET_FEE_ADDRESS::response& res);
   bool on_get_transaction_out_amounts_for_account(const COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::request& req, COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::response& res);
+  bool on_get_collateral_hash(const COMMAND_RPC_GET_COLLATERAL_HASH::request& req, COMMAND_RPC_GET_COLLATERAL_HASH::response& res);
 
   // json rpc
   bool on_getblockcount(const COMMAND_RPC_GETBLOCKCOUNT::request& req, COMMAND_RPC_GETBLOCKCOUNT::response& res);
@@ -116,6 +118,7 @@ private:
   std::vector<std::string> m_cors_domains;
   std::string m_fee_address;
   Crypto::SecretKey m_view_key = NULL_SECRET_KEY;
+  Crypto::Hash m_collateral_hash = NULL_HASH;
   AccountPublicAddress m_fee_acc;
 };
 

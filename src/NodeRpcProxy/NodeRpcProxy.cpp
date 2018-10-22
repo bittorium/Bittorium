@@ -149,6 +149,12 @@ void NodeRpcProxy::feeAddressCallback(std::error_code ec) {
   }
 }
 
+void NodeRpcProxy::collateralHashCallback(std::error_code ec) {
+  if (ec) {
+    m_collateralhash = "";
+  }
+}
+
 void NodeRpcProxy::workerThread(const INode::Callback& initialized_callback) {
   try {
     Dispatcher dispatcher;
@@ -171,6 +177,11 @@ void NodeRpcProxy::workerThread(const INode::Callback& initialized_callback) {
     {
       std::error_code ec;
       getFeeAddress(m_feeaddress, std::bind(&NodeRpcProxy::feeAddressCallback, this, ec));
+    }
+
+    {
+      std::error_code ec;
+      getCollateralHash(m_collateralhash, std::bind(&NodeRpcProxy::collateralHashCallback, this, ec));
     }
 
     updateNodeStatus();
@@ -365,6 +376,11 @@ std::string NodeRpcProxy::getLastFeeAddress() const {
   return m_feeaddress;
 }
 
+std::string NodeRpcProxy::getLastCollateralHash() const {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  return m_collateralhash;
+}
+
 void NodeRpcProxy::getBlockHashesByTimestamps(uint64_t timestampBegin, size_t secondsCount, std::vector<Crypto::Hash>& blockHashes, const Callback& callback) {
   std::lock_guard<std::mutex> lock(m_mutex);
   if (m_state != STATE_INITIALIZED) {
@@ -523,6 +539,16 @@ void NodeRpcProxy::getFeeAddress(std::string &feeAddress, const Callback& callba
   }
 
   scheduleRequest(std::bind(&NodeRpcProxy::doGetFeeAddress, this, std::ref(feeAddress)), callback);
+}
+
+void NodeRpcProxy::getCollateralHash(std::string &collateralHash, const Callback& callback) {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  if (m_state != STATE_INITIALIZED) {
+    callback(make_error_code(error::NOT_INITIALIZED));
+    return;
+  }
+
+  scheduleRequest(std::bind(&NodeRpcProxy::doGetCollateralHash, this, std::ref(collateralHash)), callback);
 }
 
 void NodeRpcProxy::isSynchronized(bool& syncStatus, const Callback& callback) {
@@ -753,6 +779,19 @@ std::error_code NodeRpcProxy::doGetFeeAddress(std::string& feeAddress) {
   }
 
   feeAddress = std::move(resp.fee_address);
+  return ec;
+}
+
+std::error_code NodeRpcProxy::doGetCollateralHash(std::string& collateralHash) {
+  COMMAND_RPC_GET_COLLATERAL_HASH::request req = AUTO_VAL_INIT(req);
+  COMMAND_RPC_GET_COLLATERAL_HASH::response resp = AUTO_VAL_INIT(resp);
+
+  std::error_code ec = jsonCommand("/collateralhash", req, resp);
+  if (ec) {
+    return ec;
+  }
+
+  collateralHash = std::move(resp.collateralHash);
   return ec;
 }
 

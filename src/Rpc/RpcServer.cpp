@@ -133,6 +133,7 @@ std::unordered_map<std::string, RpcServer::RpcHandler<RpcServer::HandlerFunction
   { "/gettransactions", { jsonMethod<COMMAND_RPC_GET_TRANSACTIONS>(&RpcServer::on_get_transactions), false } },
   { "/sendrawtransaction", { jsonMethod<COMMAND_RPC_SEND_RAW_TX>(&RpcServer::on_send_raw_tx), false } },
   { "/feeaddress", { jsonMethod<COMMAND_RPC_GET_FEE_ADDRESS>(&RpcServer::on_get_fee_address), true } },
+  { "/collateralhash", { jsonMethod<COMMAND_RPC_GET_COLLATERAL_HASH>(&RpcServer::on_get_collateral_hash), true } },
   { "/stop_daemon", { jsonMethod<COMMAND_RPC_STOP_DAEMON>(&RpcServer::on_stop_daemon), true } },
   { "/getpeers", { jsonMethod<COMMAND_RPC_GET_PEERS>(&RpcServer::on_get_peers), true } },
   { "/getpeersgray", { jsonMethod<COMMAND_RPC_GET_PEERSGRAY>(&RpcServer::on_get_peersgray), true } },
@@ -250,6 +251,15 @@ bool RpcServer::setViewKey(const std::string& view_key) {
   }
   logger(INFO) << "Masternode view key: " << view_key;
   m_view_key = *(struct Crypto::SecretKey *) &private_view_key_hash;
+  return true;
+}
+
+bool RpcServer::setCollateralHash(const std::string& collateral_hash) {
+  size_t size;
+  if (!Common::fromHex(collateral_hash, &m_collateral_hash, sizeof(m_collateral_hash), size) || size != sizeof(Crypto::Hash)) {
+    logger(INFO) << "Could not parse transaction hash";
+    return false;
+  }
   return true;
 }
 
@@ -699,6 +709,17 @@ bool RpcServer::on_get_transaction_out_amounts_for_account(const COMMAND_RPC_GET
   res.status = CORE_RPC_STATUS_OK;
   return true;
 }
+
+bool RpcServer::on_get_collateral_hash(const COMMAND_RPC_GET_COLLATERAL_HASH::request& req, COMMAND_RPC_GET_COLLATERAL_HASH::response& res) {
+  if (m_collateral_hash != NULL_HASH) {
+    res.collateralHash = Common::toHex(&m_collateral_hash, sizeof(m_collateral_hash));
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+  } 
+  res.status = "Collateral hash not set or invalid.";
+  return false;
+}
+
 
 bool RpcServer::on_get_peers(const COMMAND_RPC_GET_PEERS::request& req, COMMAND_RPC_GET_PEERS::response& res) {
   std::list<PeerlistEntry> peers_white;

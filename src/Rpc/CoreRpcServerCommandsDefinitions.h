@@ -937,4 +937,18 @@ struct COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT {
     }
   };
 };
+
+struct COMMAND_RPC_GET_COLLATERAL_HASH {
+  typedef EMPTY_STRUCT request;
+
+  struct response {
+    std::string collateralHash;
+    std::string status;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(collateralHash)
+      KV_MEMBER(status)
+    }
+  };
+}; 
 }

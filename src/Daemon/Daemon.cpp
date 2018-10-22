@@ -76,7 +76,7 @@ namespace
   const command_line::arg_descriptor<std::vector<std::string>>        arg_enable_cors = { "enable-cors", "Adds header 'Access-Control-Allow-Origin' to the daemon's RPC responses. Uses the value as domain. Use * for all" };
   const command_line::arg_descriptor<std::string> arg_set_fee_address = { "fee-address", "Sets fee address for light wallets to the daemon's RPC responses.", "" };
   const command_line::arg_descriptor<std::string> arg_set_view_key = { "view-key", "Sets private view key to check for masternode's fee.", "" };
-
+  const command_line::arg_descriptor<std::string> arg_set_collateral_hash = { "collateral-hash", "Sets collateral transaction hash for masternode.", "" };
   const command_line::arg_descriptor<bool>        arg_testnet_on  = {"testnet", "Used to deploy test nets. Checkpoints and hardcoded seeds are ignored, "
     "network id is changed. Use it with --data-dir flag. The wallet must be launched with --testnet flag.", false};
   const command_line::arg_descriptor<std::string> arg_load_checkpoints   = {"load-checkpoints", "<default|filename> Use builtin default checkpoints or checkpoint csv file for faster initial blockchain sync", ""};
@@ -180,6 +180,7 @@ int main(int argc, char* argv[])
     command_line::add_arg(desc_cmd_sett, arg_enable_cors);
     command_line::add_arg(desc_cmd_sett, arg_set_fee_address);
     command_line::add_arg(desc_cmd_sett, arg_set_view_key);
+    command_line::add_arg(desc_cmd_sett, arg_set_collateral_hash);
     command_line::add_arg(desc_cmd_sett, arg_blockexplorer_on);
     command_line::add_arg(desc_cmd_sett, arg_print_genesis_tx);
     command_line::add_arg(desc_cmd_sett, arg_genesis_block_reward_address);
@@ -372,6 +373,12 @@ int main(int argc, char* argv[])
       std::string vk_str = command_line::get_arg(vm, arg_set_view_key);
       if (!vk_str.empty()) {
         rpcServer.setViewKey(vk_str);
+      }
+    }
+    if (command_line::has_arg(vm, arg_set_collateral_hash)) {
+      std::string ch_str = command_line::get_arg(vm, arg_set_collateral_hash);
+      if (!ch_str.empty()) {
+        rpcServer.setCollateralHash(ch_str);
       }
     }
     logger(INFO) << "Core rpc server started ok";

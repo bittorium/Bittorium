@@ -648,9 +648,28 @@ bool RpcServer::on_get_fee_address(const COMMAND_RPC_GET_FEE_ADDRESS::request& r
     res.status = CORE_RPC_STATUS_OK;
     return false;
   }
+  if (!verifyCollateral()) {
+    res.status = "Collateral not locked!";
+    return false;
+  }
   res.fee_address = m_fee_address;
   res.status = CORE_RPC_STATUS_OK;
   return true;
+}
+
+bool RpcServer::verifyCollateral() {
+  COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::request req;
+  COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::response res;
+  if (m_collateral_hash == NULL_HASH) {
+    return false;
+  }
+  req.transaction = Common::toHex(&m_collateral_hash, sizeof(m_collateral_hash));
+  req.account = "bTXQBcHwS83gk5Ucb7gS9h58yMR7yw5rDjCNP22BT9DYjRdY6yxa9SHA1UALacBPpBTvirC4VY6n1JEJAGewV3g82SctDmvTw";
+  req.viewKey = "d3365d5799225af5954e5b938b3c4703335151dfc339b8bb608d79d2a376890d";
+  if (on_get_transaction_out_amounts_for_account(req, res) && res.amount == 7500000) {
+    return true;
+  }
+  return false;
 }
 
 bool RpcServer::on_get_transaction_out_amounts_for_account(const COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::request& req, COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::response& res)

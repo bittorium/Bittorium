@@ -65,6 +65,7 @@ private:
   virtual void processRequest(const HttpRequest& request, HttpResponse& response) override;
   bool processJsonRpcRequest(const HttpRequest& request, HttpResponse& response);
   bool isCoreReady();
+  bool verifyCollateral();
 
   // binary handlers
   bool on_get_blocks(const COMMAND_RPC_GET_BLOCKS_FAST::request& req, COMMAND_RPC_GET_BLOCKS_FAST::response& res);

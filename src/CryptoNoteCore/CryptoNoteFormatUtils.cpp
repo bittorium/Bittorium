@@ -171,7 +171,7 @@ bool constructTransaction(
   //fill inputs
   for (const TransactionSourceEntry& src_entr : sources) {
     if (src_entr.realOutput >= src_entr.outputs.size()) {
-      logger(ERROR) << "real_output index (" << src_entr.realOutput << ")bigger than output_keys.size()=" << src_entr.outputs.size();
+      logger(ERROR) << "real_output index (" << src_entr.realOutput << ") bigger than output_keys.size()=" << src_entr.outputs.size();
       return false;
     }
     summary_inputs_money += src_entr.amount;
@@ -307,7 +307,7 @@ bool checkOutsValid(const TransactionPrefix& tx, std::string* error) {
     if (out.target.type() == typeid(KeyOutput)) {
       if (out.amount == 0) {
         if (error) {
-          *error = "Zero amount ouput";
+          *error = "Zero amount output";
         }
         return false;
       }

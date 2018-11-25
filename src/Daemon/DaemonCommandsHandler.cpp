@@ -262,14 +262,14 @@ bool DaemonCommandsHandler::print_alternate_chains(const std::vector<std::string
 //--------------------------------------------------------------------------------
 bool DaemonCommandsHandler::print_block_by_height(uint32_t height)
 {
-  if (height - 1 > m_core.getTopBlockIndex()) {
-    std::cout << "block wasn't found. Current block chain height: " << m_core.getTopBlockIndex() + 1 << ", requested: " << height << std::endl;
+  if (height > m_core.getTopBlockIndex()) {
+    std::cout << "block wasn't found. Current block chain height: " << m_core.getTopBlockIndex() << ", requested: " << height << std::endl;
     return false;
   }
 
-  auto hash = m_core.getBlockHashByIndex(height - 1);
+  auto hash = m_core.getBlockHashByIndex(height);
   std::cout << "block_id: " << hash << ENDL;
-  print_as_json(m_core.getBlockByIndex(height - 1));
+  print_as_json(m_core.getBlockByIndex(height));
 
   return true;
 }

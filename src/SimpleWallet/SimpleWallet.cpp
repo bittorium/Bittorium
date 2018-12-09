@@ -67,7 +67,6 @@ int main(int argc, char **argv)
 
     remote_fee_address = getFeeAddress(localDispatcher, config.host, config.port);
 
-
     /* Our connection to Bittoriumd */
     std::unique_ptr<CryptoNote::INode> node(
         new CryptoNote::NodeRpcProxy(config.host, config.port, 
@@ -940,6 +939,10 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
         {
             reset(node, walletInfo);
         }
+        else if (words[0] == "change_password") {
+            words.erase(words.begin());
+            changePassword(walletInfo, words);
+        }
         else if (!walletInfo->viewWallet)
         {
             if (command == "outgoing_transfers")
@@ -1009,7 +1012,9 @@ void help(bool viewWallet)
               << SuccessMsg("save", 25)
               << "Save your wallet state" << std::endl
               << SuccessMsg("incoming_transfers", 25)
-              << "Show incoming transfers" << std::endl;
+              << "Show incoming transfers" << std::endl
+              << SuccessMsg("change_password", 25)
+              << "Change password of current wallet file" << std::endl;
                   
     if (viewWallet)
     {
@@ -1397,6 +1402,56 @@ void reset(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &walletInfo)
     findNewTransactions(node, walletInfo);
 }
 
+void changePassword(std::shared_ptr<WalletInfo> &walletInfo,
+                    std::vector<std::string> args)
+{
+    std::string oldPassword, newPassword;
+    if (args.size() > 2)
+    {
+        std::cout << WarningMsg("Usage: change_password <old_password> <new_password>") << std::endl;
+        return;
+    }
+    if (args.size() == 0)
+    {
+        if (walletInfo->walletPass != "") {
+            std::string tmpPassword = walletInfo->walletPass;
+            Tools::PasswordContainer pwdContainer(std::move(tmpPassword));
+            if (!pwdContainer.read_and_validate("Enter old password: "))
+            {
+                std::cout << WarningMsg("Incorrect password!") << std::endl;
+                return;
+            }
+            oldPassword = pwdContainer.password();
+        }
+    } else {
+        if (args[0] != walletInfo->walletPass) {
+            std::cout << WarningMsg("Old password doesn't match!") << std::endl;
+            return;
+        }
+        oldPassword = args[0];
+    }
+    if (args.size() < 2)
+    {
+        Tools::PasswordContainer pwdContainer;
+        if (!pwdContainer.read_password(true, "Enter new password: "))
+        {
+            std::cout << WarningMsg("Aborted!") << std::endl;
+            return;
+        }
+        newPassword = pwdContainer.password();
+    } else {
+        newPassword = args[1];
+    }
+    try {
+        walletInfo->wallet.changePassword(oldPassword, newPassword);
+        walletInfo->wallet.save();
+        walletInfo->walletPass = newPassword;
+        std::cout << InformationMsg("Password changed.") << std::endl;
+   } catch (std::exception&) {
+        std::cout << WarningMsg("Password change failed.") << std::endl;
+   }
+}
+
 void findNewTransactions(CryptoNote::INode &node, 
                          std::shared_ptr<WalletInfo> &walletInfo)
 {
@@ -1619,7 +1674,7 @@ bool processServerFeeAddressResponse(const std::string& response, std::string& f
 }
 
 //----------------------------------------------------------------------------------------------------
-std::string getFeeAddress(System::Dispatcher &dispatcher, std::string daemon_host, uint16_t daemon_port) {
+std::string getFeeAddress(System::Dispatcher& dispatcher, std::string daemon_host, uint16_t daemon_port) {
 
   CryptoNote::HttpClient httpClient(dispatcher, daemon_host, daemon_port);
 

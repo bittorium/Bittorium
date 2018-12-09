@@ -37,6 +37,7 @@ PaymentServiceJsonRpcServer::PaymentServiceJsonRpcServer(System::Dispatcher& sys
   handlers.emplace("save", jsonHandler<Save::Request, Save::Response>(std::bind(&PaymentServiceJsonRpcServer::handleSave, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("export", jsonHandler<Export::Request, Export::Response>(std::bind(&PaymentServiceJsonRpcServer::handleExport, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("reset", jsonHandler<Reset::Request, Reset::Response>(std::bind(&PaymentServiceJsonRpcServer::handleReset, this, std::placeholders::_1, std::placeholders::_2)));
+  handlers.emplace("changePassword", jsonHandler<ChangePassword::Request, ChangePassword::Response>(std::bind(&PaymentServiceJsonRpcServer::handleChangePassword, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("createAddress", jsonHandler<CreateAddress::Request, CreateAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleCreateAddress, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("createAddressList", jsonHandler<CreateAddressList::Request, CreateAddressList::Response>(std::bind(&PaymentServiceJsonRpcServer::handleCreateAddressList, this, std::placeholders::_1, std::placeholders::_2)));
   handlers.emplace("deleteAddress", jsonHandler<DeleteAddress::Request, DeleteAddress::Response>(std::bind(&PaymentServiceJsonRpcServer::handleDeleteAddress, this, std::placeholders::_1, std::placeholders::_2)));
@@ -130,6 +131,10 @@ std::error_code PaymentServiceJsonRpcServer::handleReset(const Reset::Request& r
   } else {
     return service.replaceWithNewWallet(request.viewSecretKey);
   }
+}
+
+std::error_code PaymentServiceJsonRpcServer::handleChangePassword(const ChangePassword::Request& request, ChangePassword::Response& response) {
+  return service.changePassword(request.oldPassword, request.newPassword, response.status);
 }
 
 std::error_code PaymentServiceJsonRpcServer::handleCreateAddress(const CreateAddress::Request& request, CreateAddress::Response& response) {

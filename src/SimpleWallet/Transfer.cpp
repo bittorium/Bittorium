@@ -231,7 +231,7 @@ void splitTx(CryptoNote::WalletGreen &wallet,
             = int(numTxMultiplier * 
                  (std::ceil(double(txSize) / double(maxSize))));
 
-        /* Split the requested fee over each transaction, i.e. if a fee of 200
+        /* Split the requested fee over each transaction, i.e. if a fee of 20
            BTOR was requested and we split it into 4 transactions each one will
            have a fee of 5 BTOR. If the fee per transaction is less than the
            min fee, use the min fee. */
@@ -241,12 +241,10 @@ void splitTx(CryptoNote::WalletGreen &wallet,
 
         uint64_t totalCost = p.destinations[0].amount + totalFee;
         
-        /* If we have to use the minimum fee instead of splitting the total fee,
-           then it is possible the user no longer has the balance to cover this
-           transaction. So, we slightly lower the amount they are sending. */
         if (totalCost > wallet.getActualBalance())
         {
-            p.destinations[0].amount = wallet.getActualBalance() - totalFee;
+            std::cout << WarningMsg("Not enough balance to cover network fees.") << std::endl;
+            return;
         }
 
         uint64_t amountPerTx = p.destinations[0].amount / numTransactions;

@@ -75,10 +75,18 @@ namespace Tools
     return read_password(false);
   }
 
+  bool PasswordContainer::read_password(const std::string &message) {
+    return read_password(false, message);
+  }
+
   bool PasswordContainer::read_and_validate() {
+    return read_and_validate("Give your new wallet a password: ");
+  }
+
+  bool PasswordContainer::read_and_validate(const std::string &message) {
     std::string tmpPassword = m_password;
 
-    if (!read_password()) {
+    if (!read_password(message)) {
       std::cout << "Failed to read password!";
       return false;
     }
@@ -91,15 +99,15 @@ namespace Tools
   }
 
   bool PasswordContainer::read_password(bool verify) {
+    return read_password(verify, verify ? "Give your new wallet a password: " : "Enter password: ");
+  }
+
+  bool PasswordContainer::read_password(bool verify, const std::string &message) {
     clear();
 
     bool r;
     if (is_cin_tty()) {
-      if (verify) {
-        std::cout << "Give your new wallet a password: ";
-      } else {
-        std::cout << "Enter password: ";
-      }
+      std::cout << message;
       if (verify) {
         std::string password1;
         std::string password2;
@@ -111,16 +119,16 @@ namespace Tools
             if (password1 == password2) {
               m_password = std::move(password2);
               m_empty = false;
-	            return true;
+              return true;
             } else {
               std::cout << "Passwords do not match, try again." << std::endl;
               clear();
-	            return read_password(true);
+              return read_password(true);
             }
           }
-	      }
+        }
       } else {
-	      r = read_from_tty(m_password);
+        r = read_from_tty(m_password);
       }
     } else {
       r = read_from_file();

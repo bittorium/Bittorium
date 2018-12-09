@@ -66,6 +66,21 @@ struct Reset {
   };
 };
 
+struct ChangePassword {
+  struct Request {
+    std::string oldPassword;
+    std::string newPassword;
+
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+
+  struct Response {
+    std::string status;
+
+    void serialize(CryptoNote::ISerializer& serializer);
+  };
+};
+
 struct GetViewKey {
   struct Request {
     void serialize(CryptoNote::ISerializer& serializer);

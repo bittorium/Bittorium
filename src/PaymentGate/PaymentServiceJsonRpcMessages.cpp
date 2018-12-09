@@ -42,6 +42,19 @@ void Reset::Request::serialize(CryptoNote::ISerializer& serializer) {
 void Reset::Response::serialize(CryptoNote::ISerializer& serializer) {
 }
 
+void ChangePassword::Request::serialize(CryptoNote::ISerializer& serializer) {
+  bool hasOldPassword = serializer(oldPassword, "oldPassword");
+  bool hasNewPassword = serializer(newPassword, "newPassword");
+
+  if (!hasOldPassword || !hasNewPassword) {
+    throw RequestSerializationError();
+  }
+}
+
+void ChangePassword::Response::serialize(CryptoNote::ISerializer& serializer) {
+  serializer(status, "status");
+}
+
 void GetViewKey::Request::serialize(CryptoNote::ISerializer& serializer) {
 }
 

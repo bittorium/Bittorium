@@ -2,6 +2,7 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
+Copyright (C) 2018, The Karbo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,6 +19,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <SimpleWallet/Transfer.h>
+
+// Forward declaration
+extern std::string remote_fee_address;
 
 bool parseAmount(std::string strAmount, uint64_t &amount)
 {
@@ -227,7 +231,7 @@ void splitTx(CryptoNote::WalletGreen &wallet,
             = int(numTxMultiplier * 
                  (std::ceil(double(txSize) / double(maxSize))));
 
-        /* Split the requested fee over each transaction, i.e. if a fee of 200
+        /* Split the requested fee over each transaction, i.e. if a fee of 20
            BTOR was requested and we split it into 4 transactions each one will
            have a fee of 5 BTOR. If the fee per transaction is less than the
            min fee, use the min fee. */
@@ -237,12 +241,10 @@ void splitTx(CryptoNote::WalletGreen &wallet,
 
         uint64_t totalCost = p.destinations[0].amount + totalFee;
         
-        /* If we have to use the minimum fee instead of splitting the total fee,
-           then it is possible the user no longer has the balance to cover this
-           transaction. So, we slightly lower the amount they are sending. */
         if (totalCost > wallet.getActualBalance())
         {
-            p.destinations[0].amount = wallet.getActualBalance() - totalFee;
+            std::cout << WarningMsg("Not enough balance to cover network fees.") << std::endl;
+            return;
         }
 
         uint64_t amountPerTx = p.destinations[0].amount / numTransactions;
@@ -792,13 +794,19 @@ void doTransfer(uint16_t mixin, std::string address, uint64_t amount,
                 std::shared_ptr<WalletInfo> walletInfo)
 {
     uint64_t balance = walletInfo->wallet.getActualBalance();
+    uint64_t remote_node_fee = 0;
+    if (!remote_fee_address.empty())
+    {
+        // Remote node fee is between 0.01 and 1.00 BTOR depending on transfer amount
+        remote_node_fee = std::min(UINT64_C(1), std::max(static_cast<uint64_t>(amount * 0.000025), UINT64_C(100)));
+    }
 
-    if (balance < amount + fee)
+    if (balance < amount + fee + remote_node_fee)
     {
         std::cout << WarningMsg("You don't have enough funds to cover this "
                             "transaction!") << std::endl
                   << InformationMsg("Funds needed: " 
-                                  + formatAmount(amount + fee))
+                                  + formatAmount(amount + fee + remote_node_fee))
                   << std::endl
                   << SuccessMsg("Funds available: " + formatAmount(balance))
                   << std::endl;
@@ -814,6 +822,13 @@ void doTransfer(uint16_t mixin, std::string address, uint64_t amount,
     w.address = address;
     w.amount = amount;
     transfers.push_back(w);
+
+    if (!remote_fee_address.empty())
+    {
+        w.address = remote_fee_address;
+        w.amount = remote_node_fee;
+        transfers.push_back(w);
+    }
 
     CryptoNote::TransactionParameters p;
     p.destinations = transfers;
@@ -1046,7 +1061,9 @@ Maybe<uint16_t> getMixin()
                   << std::endl
                   << "Mixin is how many times your transaction is mixed "
                   << "with others for privacy." << std::endl
-                  << "Hit enter for the default mixin of 5: ";
+                  << "Hit enter for the default mixin of "
+                  << std::to_string(CryptoNote::parameters::DEFAULT_MIXIN)
+                  << ": ";
 
         std::getline(std::cin, stringMixin);
 

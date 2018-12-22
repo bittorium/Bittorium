@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2017-2018, The Karbo developers
 //
 // This file is part of Bytecoin.
 //
@@ -286,6 +287,7 @@ struct COMMAND_RPC_GET_INFO {
     uint32_t hashrate;
     std::string version;
     bool synced;
+    std::string fee_address;
 
     void serialize(ISerializer &s) {
       KV_MEMBER(status)
@@ -303,6 +305,7 @@ struct COMMAND_RPC_GET_INFO {
       KV_MEMBER(hashrate)
       KV_MEMBER(synced)
       KV_MEMBER(version)
+      KV_MEMBER(fee_address)
     }
   };
 };
@@ -317,6 +320,21 @@ struct COMMAND_RPC_STOP_MINING {
 struct COMMAND_RPC_STOP_DAEMON {
   typedef EMPTY_STRUCT request;
   typedef STATUS_STRUCT response;
+};
+
+//-----------------------------------------------
+struct COMMAND_RPC_GET_FEE_ADDRESS {
+  typedef EMPTY_STRUCT request;
+
+  struct response {
+    std::string fee_address;
+    std::string status;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(fee_address)
+      KV_MEMBER(status)
+    }
+  };
 };
 
 //
@@ -895,4 +913,42 @@ struct COMMAND_RPC_GET_ISSUED_COINS {
     }
   };
 };
+
+struct COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT {
+  struct request {
+    std::string transaction;
+    std::string account;
+    std::string viewKey;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(transaction)
+      KV_MEMBER(account)
+      KV_MEMBER(viewKey)
+    }
+  };
+
+  struct response {
+    uint64_t amount;
+    std::string status;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(amount)
+      KV_MEMBER(status)
+    }
+  };
+};
+
+struct COMMAND_RPC_GET_COLLATERAL_HASH {
+  typedef EMPTY_STRUCT request;
+
+  struct response {
+    std::string collateralHash;
+    std::string status;
+
+    void serialize(ISerializer &s) {
+      KV_MEMBER(collateralHash)
+      KV_MEMBER(status)
+    }
+  };
+}; 
 }

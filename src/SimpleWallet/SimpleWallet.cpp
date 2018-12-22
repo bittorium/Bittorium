@@ -2,6 +2,8 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
+Copyright (c) 2018, The Karbo developers
+
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,6 +20,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <SimpleWallet/SimpleWallet.h>
+#include <cstring>
+
+#include "Common/JsonValue.h"
+#include "Rpc/HttpClient.h"
+
+// Fee address is declared here so we can access it from other source files
+std::string remote_fee_address;
 
 int main(int argc, char **argv)
 {
@@ -55,6 +64,8 @@ int main(int argc, char **argv)
 
     System::Dispatcher localDispatcher;
     System::Dispatcher *dispatcher = &localDispatcher;
+
+    remote_fee_address = getFeeAddress(localDispatcher, config.host, config.port);
 
     /* Our connection to Bittoriumd */
     std::unique_ptr<CryptoNote::INode> node(
@@ -928,6 +939,10 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
         {
             reset(node, walletInfo);
         }
+        else if (words[0] == "change_password") {
+            words.erase(words.begin());
+            changePassword(walletInfo, words);
+        }
         else if (!walletInfo->viewWallet)
         {
             if (command == "outgoing_transfers")
@@ -997,7 +1012,9 @@ void help(bool viewWallet)
               << SuccessMsg("save", 25)
               << "Save your wallet state" << std::endl
               << SuccessMsg("incoming_transfers", 25)
-              << "Show incoming transfers" << std::endl;
+              << "Show incoming transfers" << std::endl
+              << SuccessMsg("change_password", 25)
+              << "Change password of current wallet file" << std::endl;
                   
     if (viewWallet)
     {
@@ -1385,6 +1402,56 @@ void reset(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &walletInfo)
     findNewTransactions(node, walletInfo);
 }
 
+void changePassword(std::shared_ptr<WalletInfo> &walletInfo,
+                    std::vector<std::string> args)
+{
+    std::string oldPassword, newPassword;
+    if (args.size() > 2)
+    {
+        std::cout << WarningMsg("Usage: change_password <old_password> <new_password>") << std::endl;
+        return;
+    }
+    if (args.size() == 0)
+    {
+        if (walletInfo->walletPass != "") {
+            std::string tmpPassword = walletInfo->walletPass;
+            Tools::PasswordContainer pwdContainer(std::move(tmpPassword));
+            if (!pwdContainer.read_and_validate("Enter old password: "))
+            {
+                std::cout << WarningMsg("Incorrect password!") << std::endl;
+                return;
+            }
+            oldPassword = pwdContainer.password();
+        }
+    } else {
+        if (args[0] != walletInfo->walletPass) {
+            std::cout << WarningMsg("Old password doesn't match!") << std::endl;
+            return;
+        }
+        oldPassword = args[0];
+    }
+    if (args.size() < 2)
+    {
+        Tools::PasswordContainer pwdContainer;
+        if (!pwdContainer.read_password(true, "Enter new password: "))
+        {
+            std::cout << WarningMsg("Aborted!") << std::endl;
+            return;
+        }
+        newPassword = pwdContainer.password();
+    } else {
+        newPassword = args[1];
+    }
+    try {
+        walletInfo->wallet.changePassword(oldPassword, newPassword);
+        walletInfo->wallet.save();
+        walletInfo->walletPass = newPassword;
+        std::cout << InformationMsg("Password changed.") << std::endl;
+   } catch (std::exception&) {
+        std::cout << WarningMsg("Password change failed.") << std::endl;
+   }
+}
+
 void findNewTransactions(CryptoNote::INode &node, 
                          std::shared_ptr<WalletInfo> &walletInfo)
 {
@@ -1583,4 +1650,54 @@ void viewWalletMsg()
               << "balance to a new wallet, and import this as a new view "
               << "wallet so your balance can be correctly observed."
               << std::endl << std::endl;
+}
+
+//----------------------------------------------------------------------------------------------------
+bool processServerFeeAddressResponse(const std::string& response, std::string& fee_address) {
+    try {
+        std::stringstream stream(response);
+        Common::JsonValue json;
+        stream >> json;
+
+        auto rootIt = json.getObject().find("fee_address");
+        if (rootIt == json.getObject().end()) {
+            return false;
+        }
+
+        fee_address = rootIt->second.getString();
+    }
+    catch (std::exception&) {
+        return false;
+    }
+
+    return true;
+}
+
+//----------------------------------------------------------------------------------------------------
+std::string getFeeAddress(System::Dispatcher& dispatcher, std::string daemon_host, uint16_t daemon_port) {
+
+  CryptoNote::HttpClient httpClient(dispatcher, daemon_host, daemon_port);
+
+  CryptoNote::HttpRequest req;
+  CryptoNote::HttpResponse res;
+
+  req.setUrl("/feeaddress");
+  try {
+	  httpClient.request(req, res);
+  }
+  catch (const std::exception& e) {
+      std::string errorMsg = e.what();
+	  std::cout << WarningMsg("Error connecting to the remote node: " + errorMsg) << std::endl;
+  }
+
+  if (res.getStatus() != CryptoNote::HttpResponse::STATUS_200) {
+	  std::cout << WarningMsg("Remote node returned code " + std::to_string(res.getStatus())) << std::endl;
+  }
+
+  std::string address;
+  if (!processServerFeeAddressResponse(res.getBody(), address)) {
+	  std::cout << WarningMsg("Failed to parse remote node response") << std::endl;
+  }
+
+  return address;
 }

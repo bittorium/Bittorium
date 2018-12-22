@@ -2,6 +2,7 @@
 Copyright (C) 2018, The TurtleCoin developers
 Copyright (C) 2018, The PinkstarcoinV2 developers
 Copyright (C) 2018, The Bittorium developers
+Copyright (C) 2018, The Karbo developers
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -89,6 +90,9 @@ void findNewTransactions(CryptoNote::INode &node,
 
 void reset(CryptoNote::INode &node, std::shared_ptr<WalletInfo> &walletInfo);
 
+void changePassword(std::shared_ptr<WalletInfo> &walletInfo,
+                    std::vector<std::string> args);
+
 void printOutgoingTransfer(CryptoNote::WalletTransaction t,
                            CryptoNote::INode &node);
 
@@ -144,3 +148,5 @@ ColouredMsg getPrompt(std::shared_ptr<WalletInfo> &walletInfo);
 
 CryptoNote::BlockDetails getBlock(uint32_t blockHeight,
                                   CryptoNote::INode &node);
+
+std::string getFeeAddress(System::Dispatcher& dispatcher, std::string daemon_host, uint16_t daemon_port);

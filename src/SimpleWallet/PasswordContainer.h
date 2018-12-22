@@ -37,8 +37,11 @@ namespace Tools
     void password(std::string&& val) { m_password = std::move(val); 
                                        m_empty = false; }
     bool read_and_validate();
+    bool read_and_validate(const std::string &message);
     bool read_password();
+    bool read_password(const std::string &message);
     bool read_password(bool verify);
+    bool read_password(bool verify, const std::string &message);
 
   private:
     bool read_from_file();

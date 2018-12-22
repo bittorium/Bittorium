@@ -26,7 +26,7 @@ void confirmPassword(std::string walletPass)
     std::string tmpString = walletPass;
     Tools::PasswordContainer pwdContainer(std::move(tmpString));
 
-    while (!pwdContainer.read_and_validate())
+    while (!pwdContainer.read_and_validate("Enter password: "))
     {
         std::cout << "Incorrect password! Try again." << std::endl;
     }

@@ -74,6 +74,7 @@ private:
   std::error_code handleSave(const Save::Request& request, Save::Response& response);
   std::error_code handleExport(const Export::Request& request, Export::Response& response);
   std::error_code handleReset(const Reset::Request& request, Reset::Response& response);
+  std::error_code handleChangePassword(const ChangePassword::Request& request, ChangePassword::Response& response);
   std::error_code handleCreateAddress(const CreateAddress::Request& request, CreateAddress::Response& response);
   std::error_code handleCreateAddressList(const CreateAddressList::Request& request, CreateAddressList::Response& response);
   std::error_code handleDeleteAddress(const DeleteAddress::Request& request, DeleteAddress::Response& response);

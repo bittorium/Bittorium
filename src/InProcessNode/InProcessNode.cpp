@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -551,6 +552,14 @@ BlockHeaderInfo InProcessNode::getLastLocalBlockHeaderInfo() const {
   return lastLocalBlockHeaderInfo;
 }
 
+std::string InProcessNode::getLastFeeAddress() const {
+  return "";
+}
+
+std::string InProcessNode::getLastCollateralHash() const {
+  return "";
+}
+
 void InProcessNode::getBlockHashesByTimestamps(uint64_t timestampBegin, size_t secondsCount, std::vector<Crypto::Hash>& blockHashes, const Callback& callback) {
   std::unique_lock<std::mutex> lock(mutex);
   if (state != INITIALIZED) {
@@ -885,6 +894,16 @@ std::error_code InProcessNode::doGetTransactions(const std::vector<Crypto::Hash>
 
 
   return std::error_code();
+}
+
+void InProcessNode::getFeeAddress(std::string& feeAddress, const Callback& callback) {
+  feeAddress = "";
+  callback({});
+}
+
+void InProcessNode::getCollateralHash(std::string& collateralHash, const Callback &callback) {
+  collateralHash = "";
+  callback({});
 }
 
 void InProcessNode::isSynchronized(bool& syncStatus, const Callback& callback) {

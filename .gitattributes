@@ -1,3 +1,10 @@
 .git* export-ignore
 /CMakeLists.txt export-subst
 *.sh text eol=lf
+*.h text
+*.c text
+*.cc text
+*.cpp text
+*.java text
+*.md text
+*.rc text eol=crlf

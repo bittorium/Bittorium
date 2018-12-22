@@ -515,6 +515,31 @@ std::error_code WalletService::resetWallet() {
   return std::error_code();
 }
 
+std::error_code WalletService::changePassword(const std::string &oldPassword, const std::string &newPassword, std::string &status) {
+  try {
+    System::EventLock lk(readyEvent);
+
+    if (!inited) {
+      logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Password change impossible: Wallet Service is not initialized";
+      return make_error_code(CryptoNote::error::NOT_INITIALIZED);
+    }
+
+    wallet.changePassword(oldPassword, newPassword);
+    wallet.save(); // Save wallet file to actually update the password in wallet file
+    status = "OK";
+    logger(Logging::INFO, Logging::BRIGHT_WHITE) << "Wallet password was changed successfully";
+    return std::error_code();
+  } catch (std::system_error& x) {
+    logger(Logging::WARNING, Logging::BRIGHT_YELLOW) << "Error while changing password: " << x.what();
+    status = x.what();
+    return x.code();
+  } catch (std::exception& x) {
+    logger(Logging::INFO, Logging::BRIGHT_WHITE) << "Error while changing password: " << x.what();
+    status = x.what();
+    return make_error_code(CryptoNote::error::WRONG_PASSWORD);
+  }
+}
+
 std::error_code WalletService::replaceWithNewWallet(const std::string& viewSecretKeyText) {
   try {
     System::EventLock lk(readyEvent);
@@ -1209,7 +1234,7 @@ void WalletService::replaceWithNewWallet(const Crypto::SecretKey& viewSecretKey)
 
     if (!boost::filesystem::exists(backup)) {
       boost::filesystem::rename(config.walletFile, backup);
-      logger(Logging::DEBUGGING) << "Walled file '" << config.walletFile  << "' backed up to '" << backup << '\'';
+      logger(Logging::DEBUGGING) << "Wallet file '" << config.walletFile  << "' backed up to '" << backup << '\'';
       break;
     }
   }

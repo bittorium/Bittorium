@@ -1,4 +1,6 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2016-2018, The Karbowanec developers
+// Copyright (c) 2018, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -22,10 +24,12 @@
 
 // CryptoNote
 #include "Common/StringTools.h"
+#include "CryptoNoteCore/CryptoNoteFormatUtils.h"
 #include "CryptoNoteCore/CryptoNoteTools.h"
 #include "CryptoNoteCore/Core.h"
 #include "CryptoNoteCore/Miner.h"
 #include "CryptoNoteCore/TransactionExtra.h"
+#include "CryptoNoteCore/TransactionUtils.h"
 #include "CryptoNoteConfig.h"
 #include "CryptoNoteProtocol/CryptoNoteProtocolHandlerCommon.h"
 #include "P2p/NetNode.h"
@@ -128,10 +132,13 @@ std::unordered_map<std::string, RpcServer::RpcHandler<RpcServer::HandlerFunction
   { "/getheight", { jsonMethod<COMMAND_RPC_GET_HEIGHT>(&RpcServer::on_get_height), true } },
   { "/gettransactions", { jsonMethod<COMMAND_RPC_GET_TRANSACTIONS>(&RpcServer::on_get_transactions), false } },
   { "/sendrawtransaction", { jsonMethod<COMMAND_RPC_SEND_RAW_TX>(&RpcServer::on_send_raw_tx), false } },
+  { "/feeaddress", { jsonMethod<COMMAND_RPC_GET_FEE_ADDRESS>(&RpcServer::on_get_fee_address), true } },
+  { "/collateralhash", { jsonMethod<COMMAND_RPC_GET_COLLATERAL_HASH>(&RpcServer::on_get_collateral_hash), true } },
   { "/stop_daemon", { jsonMethod<COMMAND_RPC_STOP_DAEMON>(&RpcServer::on_stop_daemon), true } },
   { "/getpeers", { jsonMethod<COMMAND_RPC_GET_PEERS>(&RpcServer::on_get_peers), true } },
   { "/getpeersgray", { jsonMethod<COMMAND_RPC_GET_PEERSGRAY>(&RpcServer::on_get_peersgray), true } },
   { "/get_generated_coins", { jsonMethod<COMMAND_RPC_GET_ISSUED_COINS>(&RpcServer::on_get_issued), true } },
+  { "/get_amounts_for_account", { jsonMethod<COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT>(&RpcServer::on_get_transaction_out_amounts_for_account), true } },
 
   // json rpc
   { "/json_rpc", { std::bind(&RpcServer::processJsonRpcRequest, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3), true } }
@@ -228,8 +235,77 @@ std::vector<std::string> RpcServer::getCorsDomains() {
   return m_cors_domains;
 }
 
+bool RpcServer::setFeeAddress(const std::string& fee_address, const AccountPublicAddress& fee_acc) {
+  logger(INFO) << "Masternode fee address: " << fee_address;
+  m_fee_address = fee_address;
+  m_fee_acc = fee_acc;
+  return true;
+}
+
+bool RpcServer::setViewKey(const std::string& view_key) {
+  Crypto::Hash private_view_key_hash;
+  size_t size;
+  if (!Common::fromHex(view_key, &private_view_key_hash, sizeof(private_view_key_hash), size) || size != sizeof(private_view_key_hash)) {
+    logger(INFO) << "Could not parse private view key";
+    return false;
+  }
+  logger(INFO) << "Masternode view key: " << view_key;
+  m_view_key = *(struct Crypto::SecretKey *) &private_view_key_hash;
+  return true;
+}
+
+bool RpcServer::setCollateralHash(const std::string& collateral_hash) {
+  size_t size;
+  if (!Common::fromHex(collateral_hash, &m_collateral_hash, sizeof(m_collateral_hash), size) || size != sizeof(Crypto::Hash)) {
+    logger(INFO) << "Could not parse transaction hash";
+    return false;
+  }
+  return true;
+}
+
 bool RpcServer::isCoreReady() {
   return m_core.getCurrency().isTestnet() || m_p2p.get_payload_object().isSynchronized();
+}
+
+bool RpcServer::masternode_check_incoming_tx(const BinaryArray& tx_blob) {
+  Crypto::Hash tx_hash = NULL_HASH;
+  Crypto::Hash tx_prefixt_hash = NULL_HASH;
+  Transaction tx;
+  if (!parseAndValidateTransactionFromBinaryArray(tx_blob, tx, tx_hash, tx_prefixt_hash)) {
+    logger(INFO) << "Could not parse tx from blob";
+    return false;
+  }
+  CryptoNote::TransactionPrefix transaction = *static_cast<const TransactionPrefix*>(&tx);
+
+  // Check if this is a fusion transaction
+  uint64_t inAmount = 0, outAmount = 0;
+  for (auto in : tx.inputs) {
+    inAmount += CryptoNote::getTransactionInputAmount(in);
+  }
+
+  for (auto out : tx.outputs) {
+    outAmount += CryptoNote::getTransactionOutputAmount(out);
+  }
+
+  if (inAmount == outAmount) {
+    logger(INFO) << "Masternode received fusion transaction, relaying with no fee check.";
+    return true;
+  }
+
+  // Check for outputs to masternode's wallet address
+  std::vector<uint32_t> out;
+  uint64_t amount;
+
+  if (!CryptoNote::findOutputsToAccount(transaction, m_fee_acc, m_view_key, out, amount)) {
+    logger(INFO) << "Could not find outputs to masternode fee address";
+    return false;
+  }
+
+  if (amount != 0) {
+    logger(INFO) << "Masternode received relayed transaction fee: " << m_core.getCurrency().formatAmount(amount) << " BTOR";
+    return true;
+  }
+  return false;
 }
 
 //
@@ -535,6 +611,14 @@ bool RpcServer::on_send_raw_tx(const COMMAND_RPC_SEND_RAW_TX::request& req, COMM
   Crypto::Hash transactionHash = Crypto::cn_fast_hash(transactions.back().data(), transactions.back().size());
   logger(DEBUGGING) << "transaction " << transactionHash << " came in on_send_raw_tx";
 
+  if (!m_fee_address.empty() && m_view_key != NULL_SECRET_KEY) {
+    if (!masternode_check_incoming_tx(transactions.back())) {
+      logger(INFO) << "Transaction not relayed due to lack of masternode fee";		
+      res.status = "Not relayed due to lack of node fee";
+      return true;
+    }
+  }
+
   if (!m_core.addTransactionToPool(transactions.back())) {
     logger(DEBUGGING) << "[on_send_raw_tx]: tx verification failed";
     res.status = "Failed";
@@ -558,6 +642,102 @@ bool RpcServer::on_stop_daemon(const COMMAND_RPC_STOP_DAEMON::request& req, COMM
 
   return true;
 }
+
+bool RpcServer::on_get_fee_address(const COMMAND_RPC_GET_FEE_ADDRESS::request& req, COMMAND_RPC_GET_FEE_ADDRESS::response& res) {
+  if (m_fee_address.empty()) {
+    res.status = CORE_RPC_STATUS_OK;
+    return false;
+  }
+  if (!verifyCollateral()) {
+    res.status = "Collateral not locked!";
+    return false;
+  }
+  res.fee_address = m_fee_address;
+  res.status = CORE_RPC_STATUS_OK;
+  return true;
+}
+
+bool RpcServer::verifyCollateral() {
+  COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::request req;
+  COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::response res;
+  if (m_collateral_hash == NULL_HASH) {
+    return false;
+  }
+  req.transaction = Common::toHex(&m_collateral_hash, sizeof(m_collateral_hash));
+  req.account = "bTXQBcHwS83gk5Ucb7gS9h58yMR7yw5rDjCNP22BT9DYjRdY6yxa9SHA1UALacBPpBTvirC4VY6n1JEJAGewV3g82SctDmvTw";
+  req.viewKey = "d3365d5799225af5954e5b938b3c4703335151dfc339b8bb608d79d2a376890d";
+  if (on_get_transaction_out_amounts_for_account(req, res) && res.amount == 7500000) {
+    return true;
+  }
+  return false;
+}
+
+bool RpcServer::on_get_transaction_out_amounts_for_account(const COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::request& req, COMMAND_RPC_GET_TRANSACTION_OUT_AMOUNTS_FOR_ACCOUNT::response& res)
+{
+  Crypto::Hash tx_hash = NULL_HASH, tx_prefixt_hash = NULL_HASH;
+  AccountPublicAddress acc = boost::value_initialized<AccountPublicAddress>();
+  Crypto::SecretKey viewKey;
+  Transaction tx;
+  TransactionPrefix transactionPrefix;
+  std::vector<Crypto::Hash> tx_hashes, missed_txs;
+  std::vector<BinaryArray> tx_blobs;
+  std::vector<uint32_t> out;
+  uint64_t amount;
+
+  if (!podFromHex(req.transaction, tx_hash)) {
+    res.status = "Invalid transaction hash!";
+    return false;
+  }
+
+  if (!req.account.empty()) {
+    if (!m_core.getCurrency().parseAccountAddressString(req.account, acc)) {
+      res.status = "Bad wallet address!";
+      return false;
+    }
+  }
+
+  if (!podFromHex(req.viewKey, viewKey)) {
+    res.status = "Invalid view key!";
+    return false;
+  }
+
+  if (!m_core.hasTransaction(tx_hash)) {
+    res.status = "Transaction not found!";
+    return false;
+  }
+
+  tx_hashes.push_back(tx_hash);
+  m_core.getTransactions(tx_hashes, tx_blobs, missed_txs);
+
+  if (!parseAndValidateTransactionFromBinaryArray(tx_blobs.front(), tx, tx_hash, tx_prefixt_hash)) {
+    res.status = "Could not parse transaction from blob";
+    return false;
+  }
+
+  // Check for outputs to wallet address
+
+  transactionPrefix = *static_cast<const TransactionPrefix*>(&tx);
+
+  if (!CryptoNote::findOutputsToAccount(transactionPrefix, acc, viewKey, out, amount)) {
+    logger(INFO) << "Could not find outputs to wallet address";
+    return false;
+  }
+
+  res.amount = amount;
+  res.status = CORE_RPC_STATUS_OK;
+  return true;
+}
+
+bool RpcServer::on_get_collateral_hash(const COMMAND_RPC_GET_COLLATERAL_HASH::request& req, COMMAND_RPC_GET_COLLATERAL_HASH::response& res) {
+  if (m_collateral_hash != NULL_HASH) {
+    res.collateralHash = Common::toHex(&m_collateral_hash, sizeof(m_collateral_hash));
+    res.status = CORE_RPC_STATUS_OK;
+    return true;
+  } 
+  res.status = "Collateral hash not set or invalid.";
+  return false;
+}
+
 
 bool RpcServer::on_get_peers(const COMMAND_RPC_GET_PEERS::request& req, COMMAND_RPC_GET_PEERS::response& res) {
   std::list<PeerlistEntry> peers_white;

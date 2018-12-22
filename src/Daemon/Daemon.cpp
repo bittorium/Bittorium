@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2016-2018, The Karbo developers
 //
 // This file is part of Bytecoin.
 //
@@ -73,6 +74,9 @@ namespace
   const command_line::arg_descriptor<std::vector<std::string>> arg_genesis_block_reward_address = { "genesis-block-reward-address", "" };
   const command_line::arg_descriptor<bool> arg_blockexplorer_on = {"enable_blockexplorer", "Enable blockchain explorer RPC", false};
   const command_line::arg_descriptor<std::vector<std::string>>        arg_enable_cors = { "enable-cors", "Adds header 'Access-Control-Allow-Origin' to the daemon's RPC responses. Uses the value as domain. Use * for all" };
+  const command_line::arg_descriptor<std::string> arg_set_fee_address = { "fee-address", "Sets fee address for light wallets to the daemon's RPC responses.", "" };
+  const command_line::arg_descriptor<std::string> arg_set_view_key = { "view-key", "Sets private view key to check for masternode's fee.", "" };
+  const command_line::arg_descriptor<std::string> arg_set_collateral_hash = { "collateral-hash", "Sets collateral transaction hash for masternode.", "" };
   const command_line::arg_descriptor<bool>        arg_testnet_on  = {"testnet", "Used to deploy test nets. Checkpoints and hardcoded seeds are ignored, "
     "network id is changed. Use it with --data-dir flag. The wallet must be launched with --testnet flag.", false};
   const command_line::arg_descriptor<std::string> arg_load_checkpoints   = {"load-checkpoints", "<default|filename> Use builtin default checkpoints or checkpoint csv file for faster initial blockchain sync", ""};
@@ -174,6 +178,9 @@ int main(int argc, char* argv[])
     command_line::add_arg(desc_cmd_sett, arg_console);
     command_line::add_arg(desc_cmd_sett, arg_testnet_on);
     command_line::add_arg(desc_cmd_sett, arg_enable_cors);
+    command_line::add_arg(desc_cmd_sett, arg_set_fee_address);
+    command_line::add_arg(desc_cmd_sett, arg_set_view_key);
+    command_line::add_arg(desc_cmd_sett, arg_set_collateral_hash);
     command_line::add_arg(desc_cmd_sett, arg_blockexplorer_on);
     command_line::add_arg(desc_cmd_sett, arg_print_genesis_tx);
     command_line::add_arg(desc_cmd_sett, arg_genesis_block_reward_address);
@@ -350,7 +357,30 @@ int main(int argc, char* argv[])
 
     logger(INFO) << "Starting core rpc server on address " << rpcConfig.getBindAddress();
     rpcServer.start(rpcConfig.bindIp, rpcConfig.bindPort);
-rpcServer.enableCors(command_line::get_arg(vm, arg_enable_cors));
+    rpcServer.enableCors(command_line::get_arg(vm, arg_enable_cors));
+    if (command_line::has_arg(vm, arg_set_fee_address)) {
+      std::string addr_str = command_line::get_arg(vm, arg_set_fee_address);
+      if (!addr_str.empty()) {
+        AccountPublicAddress acc = boost::value_initialized<AccountPublicAddress>();
+        if (!currency.parseAccountAddressString(addr_str, acc)) {
+          logger(ERROR, BRIGHT_RED) << "Bad fee address: " << addr_str;
+          return 1;
+        }
+        rpcServer.setFeeAddress(addr_str, acc);
+      }
+    }
+    if (command_line::has_arg(vm, arg_set_view_key)) {
+      std::string vk_str = command_line::get_arg(vm, arg_set_view_key);
+      if (!vk_str.empty()) {
+        rpcServer.setViewKey(vk_str);
+      }
+    }
+    if (command_line::has_arg(vm, arg_set_collateral_hash)) {
+      std::string ch_str = command_line::get_arg(vm, arg_set_collateral_hash);
+      if (!ch_str.empty()) {
+        rpcServer.setCollateralHash(ch_str);
+      }
+    }
     logger(INFO) << "Core rpc server started ok";
 
     Tools::SignalHandler::install([&dch, &p2psrv] {

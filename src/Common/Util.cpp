@@ -297,6 +297,25 @@ std::string get_nix_version_display_string()
 
     return "";
   }
+
+  std::wstring get_special_folder_path_w(int nfolder, bool iscreate)
+  {
+    namespace fs = boost::filesystem;
+    wchar_t psz_path[MAX_PATH] = L"";
+
+    if (SHGetSpecialFolderPathW(NULL, psz_path, nfolder, iscreate)) {
+      return psz_path;
+    }
+
+    return L"";
+  }
+
+  std::wstring getDefaultDataDirectoryW()
+  {
+    std::wstring ws(strlen(CryptoNote::CRYPTONOTE_NAME), L' ');
+    ws.resize(std::mbstowcs(&ws[0], CryptoNote::CRYPTONOTE_NAME, strlen(CryptoNote::CRYPTONOTE_NAME)));    
+    return get_special_folder_path_w(CSIDL_APPDATA, true) + std::wstring(L"/") + ws;
+  }
 #endif
 
   std::string getDefaultDataDirectory()

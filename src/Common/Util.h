@@ -23,6 +23,9 @@
 namespace Tools
 {
   std::string getDefaultDataDirectory();
+#ifdef WIN32
+  std::wstring getDefaultDataDirectoryW();
+#endif
   std::string getDefaultCacheFile(const std::string& dataDir);
   std::string get_os_version_string();
   bool create_directories_if_necessary(const std::string& path);

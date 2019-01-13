@@ -59,3 +59,6 @@ Run `./src/Bittoriumd` to connect to the network and let it sync (it may take a 
 #### Thanks
 Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Developers, Forknote Project, PinkstarcoinV2 Developers, Bittorium Developers.
 "# Bittorium" 
+
+#### Donate
+Donate to our project and help us achieve more 

@@ -61,7 +61,7 @@ Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Develo
 "# Bittorium" 
 
 #### Donate
-Donate to our project and help us achieve more 
-BTC:   326LiKxxdm9tJ2KPGG353PvfgiyNpYNoQ3
+Donate to our project and help us achieve more for you!  
+Our BTC Address:   326LiKxxdm9tJ2KPGG353PvfgiyNpYNoQ3
 
 

@@ -44,6 +44,8 @@ public:
   virtual uint32_t getKnownBlockCount() const override { return 0; };
   virtual uint64_t getLastLocalBlockTimestamp() const override { return 0; }
   virtual CryptoNote::BlockHeaderInfo getLastLocalBlockHeaderInfo() const override { return CryptoNote::BlockHeaderInfo(); }
+  virtual std::string getLastFeeAddress() const override { return ""; }
+  virtual std::string getLastCollateralHash() const override { return ""; }
 
   virtual void getNewBlocks(std::vector<Crypto::Hash>&& knownBlockIds, std::vector<CryptoNote::RawBlock>& newBlocks, uint32_t& height, const Callback& callback) override { callback(std::error_code()); };
 
@@ -68,6 +70,14 @@ public:
   }
 
   virtual void getTransactionHashesByPaymentId(const Crypto::Hash& paymentId, std::vector<Crypto::Hash>& transactionHashes, const Callback& callback) override {
+    callback(std::error_code());
+  }
+
+  virtual void getFeeAddress(std::string& feeAddress, const Callback& callback) {
+    callback(std::error_code());
+  }
+
+  virtual void getCollateralHash(std::string& collateralHash, const Callback& callback) {
     callback(std::error_code());
   }
 

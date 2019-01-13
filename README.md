@@ -62,3 +62,6 @@ Cryptonote Developers, Bytecoin Developers, Monero Developers, TurtleCoin Develo
 
 #### Donate
 Donate to our project and help us achieve more 
+BTC:   326LiKxxdm9tJ2KPGG353PvfgiyNpYNoQ3
+
+

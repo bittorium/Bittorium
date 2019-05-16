@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018-2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -35,6 +36,7 @@ enum class BlockValidationError {
   BLOCK_REWARD_MISMATCH,
   CHECKPOINT_BLOCK_HASH_MISMATCH,
   PROOF_OF_WORK_TOO_WEAK,
+  NOT_ENOUGH_TRANSACTIONS,
   TRANSACTION_ABSENT_IN_POOL
 };
 
@@ -66,6 +68,7 @@ public:
       case BlockValidationError::BLOCK_REWARD_MISMATCH: return "Block reward doesn't match expected reward";
       case BlockValidationError::CHECKPOINT_BLOCK_HASH_MISMATCH: return "Checkpoint block hash mismatch";
       case BlockValidationError::PROOF_OF_WORK_TOO_WEAK: return "Proof of work is too weak";
+      case BlockValidationError::NOT_ENOUGH_TRANSACTIONS: return "New block must have at least one transaction";
       case BlockValidationError::TRANSACTION_ABSENT_IN_POOL: return "Block's transaction is absent in transaction pool";
       default: return "Unknown error";
     }

@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2018, The Bittorium developers
+// Copyright (c) 2018-2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -201,6 +201,7 @@ Core::Core(const Currency& currency, Logging::ILogger& logger, Checkpoints&& che
   upgradeManager->addMajorBlockVersion(BLOCK_MAJOR_VERSION_2, currency.upgradeHeight(BLOCK_MAJOR_VERSION_2));
   upgradeManager->addMajorBlockVersion(BLOCK_MAJOR_VERSION_3, currency.upgradeHeight(BLOCK_MAJOR_VERSION_3));
   upgradeManager->addMajorBlockVersion(BLOCK_MAJOR_VERSION_4, currency.upgradeHeight(BLOCK_MAJOR_VERSION_4));
+  upgradeManager->addMajorBlockVersion(BLOCK_MAJOR_VERSION_5, currency.upgradeHeight(BLOCK_MAJOR_VERSION_5));
 
   transactionPool = std::unique_ptr<ITransactionPoolCleanWrapper>(new TransactionPoolCleanWrapper(
     std::unique_ptr<ITransactionPool>(new TransactionPool(logger)),
@@ -553,7 +554,7 @@ Difficulty Core::getDifficultyForNextBlock() const {
 
   uint8_t nextBlockMajorVersion = getBlockMajorVersionForHeight(topBlockIndex);
 
-  size_t blocksCount = std::min(static_cast<size_t>(topBlockIndex), currency.difficultyBlocksCountByBlockVersion(nextBlockMajorVersion));
+  size_t blocksCount = std::min(static_cast<size_t>(topBlockIndex), currency.difficultyBlocksCountByBlockVersion(nextBlockMajorVersion, topBlockIndex));
 
   auto timestamps = mainChain->getLastTimestamps(blocksCount);
   auto difficulties = mainChain->getLastCumulativeDifficulties(blocksCount);
@@ -625,6 +626,11 @@ std::error_code Core::addBlock(const CachedBlock& cachedBlock, RawBlock&& rawBlo
   if (blockValidationResult) {
     logger(Logging::DEBUGGING) << "Failed to validate block " << blockStr << ": " << blockValidationResult.message();
     return blockValidationResult;
+  }
+
+  if (blockTemplate.majorVersion >= BLOCK_MAJOR_VERSION_5 && blockTemplate.transactionHashes.size() < 1) {
+    logger(Logging::WARNING) << "New block must have at least one transaction";
+    return error::BlockValidationError::NOT_ENOUGH_TRANSACTIONS;
   }
 
   auto currentDifficulty = cache->getDifficultyForNextBlock(previousBlockIndex);
@@ -1090,7 +1096,15 @@ bool Core::getBlockTemplate(BlockTemplate& b, const AccountPublicAddress& adr, c
   b.previousBlockHash = getTopBlockHash();
   b.timestamp = time(nullptr);
 
-  uint64_t blockchain_timestamp_check_window = parameters::BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW;
+  uint64_t blockchain_timestamp_check_window;
+  if (height >= parameters::LWMA_2_DIFFICULTY_BLOCK_INDEX)
+  {
+      blockchain_timestamp_check_window = parameters::BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V3;
+  }
+  else
+  {
+      blockchain_timestamp_check_window = parameters::BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW;
+  }
   /* Skip the first N blocks, we don't have enough blocks to calculate a proper median yet */
   if (height >= blockchain_timestamp_check_window)
   {
@@ -1181,6 +1195,11 @@ bool Core::getBlockTemplate(BlockTemplate& b, const AccountPublicAddress& adr, c
           << " is not equal txs_cumulative_size=" << transactionsSize
           << " + get_object_blobsize(b.baseTransaction)=" << getObjectBinarySize(b.baseTransaction);
       return false;
+    }
+
+    if (b.majorVersion >= BLOCK_MAJOR_VERSION_5 && b.transactionHashes.size() < 1) {
+      logger(Logging::ERROR, Logging::BRIGHT_RED) << "New block must have at least one transaction";
+        return false;
     }
 
     return true;
@@ -1442,6 +1461,7 @@ std::error_code Core::validateBlock(const CachedBlock& cachedBlock, IBlockchainC
   minerReward = 0;
 
   if (upgradeManager->getBlockMajorVersion(cachedBlock.getBlockIndex()) != block.majorVersion) {
+    logger(Logging::ERROR, Logging::BRIGHT_RED) << "Expected block major version " << static_cast<int>(upgradeManager->getBlockMajorVersion(cachedBlock.getBlockIndex())) << ", got " << static_cast<int>(block.majorVersion);
     return error::BlockValidationError::WRONG_VERSION;
   }
 
@@ -1458,7 +1478,7 @@ std::error_code Core::validateBlock(const CachedBlock& cachedBlock, IBlockchainC
     }
   }
 
-  if (block.timestamp > getAdjustedTime() + currency.blockFutureTimeLimit()) {
+  if (block.timestamp > getAdjustedTime() + currency.blockFutureTimeLimit(previousBlockIndex+1)) {
     return error::BlockValidationError::TIMESTAMP_TOO_FAR_IN_FUTURE;
   }
 
@@ -1904,7 +1924,7 @@ void Core::fillBlockTemplate(BlockTemplate& block, size_t medianSize, size_t max
       block.transactionHashes.emplace_back(cachedTransaction.getTransactionHash());
       logger(Logging::TRACE) << "Transaction " << cachedTransaction.getTransactionHash() << " included to block template";
     } else {
-      logger(Logging::TRACE) << "Transaction " << cachedTransaction.getTransactionHash() << " is failed to include to block template";
+      logger(Logging::TRACE) << "Failed to include transaction " << cachedTransaction.getTransactionHash() << " to block template";
     }
   }
 }

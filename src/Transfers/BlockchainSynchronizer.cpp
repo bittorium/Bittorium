@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2018-2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -247,11 +248,11 @@ bool BlockchainSynchronizer::setFutureStateIf(State s, std::function<bool(void)>
 
 void BlockchainSynchronizer::actualizeFutureState() {
   std::unique_lock<std::mutex> lk(m_stateMutex);
-  if (m_currentState == State::stopped && (m_futureState == State::deleteOldTxs || m_futureState == State::blockchainSync)) { // start(), immideately attach observer
+  if (m_currentState == State::stopped && (m_futureState == State::deleteOldTxs || m_futureState == State::blockchainSync)) { // start(), immediately attach observer
     m_node.addObserver(this);
   }
 
-  if (m_futureState == State::stopped && m_currentState != State::stopped) { // stop(), immideately detach observer
+  if (m_futureState == State::stopped && m_currentState != State::stopped) { // stop(), immediately detach observer
     m_node.removeObserver(this);
   }
 

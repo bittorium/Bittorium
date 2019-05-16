@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -87,7 +88,7 @@ void RocksDBWrapper::shutdown() {
   state.store(NOT_INITIALIZED);
 }
 
-void RocksDBWrapper::destoy(const DataBaseConfig& config) {
+void RocksDBWrapper::destroy(const DataBaseConfig& config) {
   if (state.load() != NOT_INITIALIZED) {
     throw std::system_error(make_error_code(CryptoNote::error::DataBaseErrorCodes::ALREADY_INITIALIZED));
   }

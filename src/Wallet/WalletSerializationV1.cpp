@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -445,7 +446,7 @@ void WalletSerializerV1::loadWallets(Common::IInputStream& source, CryptoContext
   deserializeEncrypted(count, "wallets_count", cryptoContext, source);
   cryptoContext.incIv();
 
-  bool isTrackingMode;
+  bool isTrackingMode = false;
 
   for (uint64_t i = 0; i < count; ++i) {
     WalletRecordDto dto;

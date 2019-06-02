@@ -192,6 +192,7 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
       { "f_blocks_list_json", { makeMemberMethod(&RpcServer::f_on_blocks_list_json), false } },
       { "f_block_json", { makeMemberMethod(&RpcServer::f_on_block_json), false } },
       { "f_transaction_json", { makeMemberMethod(&RpcServer::f_on_transaction_json), false } },
+      { "f_pool_transaction_json", { makeMemberMethod(&RpcServer::f_on_pool_transaction_json), false } },
       { "f_on_transactions_pool_json", { makeMemberMethod(&RpcServer::f_on_transactions_pool_json), false } },
       { "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
       { "on_getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
@@ -920,38 +921,8 @@ bool RpcServer::f_on_block_json(const F_COMMAND_RPC_GET_BLOCK_DETAILS::request& 
   return true;
 }
 
-bool RpcServer::f_on_transaction_json(const F_COMMAND_RPC_GET_TRANSACTION_DETAILS::request& req, F_COMMAND_RPC_GET_TRANSACTION_DETAILS::response& res) {
-  // check if blockchain explorer RPC is enabled
-  if (m_core.getCurrency().isBlockexplorer() == false) {
-    return false;
-  }
 
-  Hash hash;
-
-  if (!parse_hash256(req.hash, hash)) {
-    throw JsonRpc::JsonRpcError{
-      CORE_RPC_ERROR_CODE_WRONG_PARAM,
-      "Failed to parse hex representation of transaction hash. Hex = " + req.hash + '.' };
-  }
-
-  std::vector<Crypto::Hash> tx_ids;
-  tx_ids.push_back(hash);
-
-  std::vector<Crypto::Hash> missed_txs;
-  std::vector<BinaryArray> txs;
-  m_core.getTransactions(tx_ids, txs, missed_txs);
-
-  if (1 == txs.size()) {
-    Transaction transaction;
-    if (!fromBinaryArray(transaction, txs.front())) {
-      throw std::runtime_error("Couldn't deserialize transaction");
-    }
-    res.tx = transaction;
-  } else {
-    throw JsonRpc::JsonRpcError{
-      CORE_RPC_ERROR_CODE_WRONG_PARAM,
-      "transaction wasn't found. Hash = " + req.hash + '.' };
-  }
+bool RpcServer::populateTransactionDetails(const Crypto::Hash& hash, F_COMMAND_RPC_GET_TRANSACTION_DETAILS::response& res) {
   TransactionDetails transactionDetails = m_core.getTransactionDetails(hash);
 
   Crypto::Hash blockHash;
@@ -1001,6 +972,71 @@ bool RpcServer::f_on_transaction_json(const F_COMMAND_RPC_GET_TRANSACTION_DETAIL
 
   res.status = CORE_RPC_STATUS_OK;
   return true;
+}
+
+
+bool RpcServer::f_on_transaction_json(const F_COMMAND_RPC_GET_TRANSACTION_DETAILS::request& req, F_COMMAND_RPC_GET_TRANSACTION_DETAILS::response& res) {
+  // check if blockchain explorer RPC is enabled
+  if (m_core.getCurrency().isBlockexplorer() == false) {
+    return false;
+  }
+
+  Hash hash;
+
+  if (!parse_hash256(req.hash, hash)) {
+    throw JsonRpc::JsonRpcError{
+      CORE_RPC_ERROR_CODE_WRONG_PARAM,
+      "Failed to parse hex representation of transaction hash. Hex = " + req.hash + '.' };
+  }
+
+  std::vector<Crypto::Hash> tx_ids;
+  tx_ids.push_back(hash);
+
+  std::vector<Crypto::Hash> missed_txs;
+  std::vector<BinaryArray> txs;
+  m_core.getTransactions(tx_ids, txs, missed_txs);
+
+  if (1 == txs.size()) {
+    Transaction transaction;
+    if (!fromBinaryArray(transaction, txs.front())) {
+      throw std::runtime_error("Couldn't deserialize transaction");
+    }
+    res.tx = transaction;
+  } else {
+    throw JsonRpc::JsonRpcError{
+      CORE_RPC_ERROR_CODE_WRONG_PARAM,
+      "transaction wasn't found. Hash = " + req.hash + '.' };
+  }
+
+  return populateTransactionDetails(hash, res);
+}
+
+
+bool RpcServer::f_on_pool_transaction_json(const F_COMMAND_RPC_GET_TRANSACTION_DETAILS::request& req, F_COMMAND_RPC_GET_TRANSACTION_DETAILS::response& res) {
+  // check if blockchain explorer RPC is enabled
+  if (m_core.getCurrency().isBlockexplorer() == false) {
+    return false;
+  }
+
+  Hash hash;
+
+  if (!parse_hash256(req.hash, hash)) {
+    throw JsonRpc::JsonRpcError{
+      CORE_RPC_ERROR_CODE_WRONG_PARAM,
+      "Failed to parse hex representation of transaction hash. Hex = " + req.hash + '.' };
+  }
+
+  Transaction transaction;
+
+  if (!m_core.getPoolTransaction(hash, transaction)) {
+      throw JsonRpc::JsonRpcError{
+        CORE_RPC_ERROR_CODE_INTERNAL_ERROR,
+        "Internal error: can't get transaction by hash. Hash = " + Common::podToHex(hash) + '.' };
+  }
+
+  res.tx = transaction;
+
+  return populateTransactionDetails(hash, res);
 }
 
 

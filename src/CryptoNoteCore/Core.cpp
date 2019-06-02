@@ -1268,6 +1268,24 @@ std::vector<BlockTemplate> Core::getAlternativeBlocks() const {
   return alternativeBlocks;
 }
 
+bool Core::hasPoolTransaction(const Crypto::Hash& transactionHash) const {
+  throwIfNotInitialized();
+
+  return transactionPool->checkIfTransactionPresent(transactionHash);
+}
+
+bool Core::getPoolTransaction(const Crypto::Hash& transactionHash, Transaction& transaction) const {
+  throwIfNotInitialized();
+
+  bool ret = transactionPool->checkIfTransactionPresent(transactionHash);
+
+  if (ret) {
+    transaction = transactionPool->getTransaction(transactionHash).getTransaction();
+  }
+
+  return ret;
+}
+
 std::vector<Transaction> Core::getPoolTransactions() const {
   throwIfNotInitialized();
 

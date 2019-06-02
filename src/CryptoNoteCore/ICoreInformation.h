@@ -36,6 +36,8 @@ public:
   virtual size_t getAlternativeBlockCount() const = 0;
   virtual uint64_t getTotalGeneratedAmount() const = 0;
   virtual std::vector<BlockTemplate> getAlternativeBlocks() const = 0;
+  virtual bool hasPoolTransaction(const Crypto::Hash& transactionHash) const = 0;
+  virtual bool getPoolTransaction(const Crypto::Hash& transactionHash, Transaction& transaction) const = 0;
   virtual std::vector<Transaction> getPoolTransactions() const = 0;
 };
 

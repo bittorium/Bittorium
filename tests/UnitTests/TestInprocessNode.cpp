@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -517,7 +518,7 @@ TEST_F(InProcessNodeTests, getTxMany) {
 
   std::vector<std::tuple<CryptoNote::Transaction, Crypto::Hash, uint64_t>> expectedTransactions;
 
-  size_t prevBlockchainSize = generator.getBlockchain().size();
+  //size_t prevBlockchainSize = generator.getBlockchain().size();
   for (size_t i = 0; i < BLOCKCHAIN_TX_NUMBER; ++i) {
     auto txptr = CryptoNote::createTransaction();
     auto tx = ::createTx(*txptr.get());

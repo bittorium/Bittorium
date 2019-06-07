@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -152,7 +153,7 @@ TEST_F(DatabaseBlockchainCacheTests, RawBlocksWereInserted) {
     ASSERT_TRUE(result);
 
     CachedBlock cachedBlock(blockTemplate);
-    auto p = cachedBlock.getBlockIndex();
+    //auto p = cachedBlock.getBlockIndex();
     ASSERT_EQ(cachedBlock.getBlockHash(), generatedBlockHashes.at(i));
   }
 }

@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -57,11 +58,11 @@ namespace {
     return account;
   }
 
-  AccountPublicAddress generateAddress() {
+  inline AccountPublicAddress generateAddress() {
     return generateAccount().getAccountKeys().address;
   }
-  
-  KeyImage generateKeyImage() {
+
+  inline KeyImage generateKeyImage() {
     return Crypto::rand<KeyImage>();
   }
 
@@ -77,7 +78,7 @@ namespace {
     return keyImage;
   }
 
-  void addTestInput(ITransaction& transaction, uint64_t amount) {
+  inline void addTestInput(ITransaction& transaction, uint64_t amount) {
     AccountKeys accountKeys = generateAccountKeys();
     KeyPair txKey = generateKeyPair();
     PublicKey outKey;
@@ -97,7 +98,7 @@ namespace {
     transaction.signInputKey(index, info, ephKeys);
   }
 
-  TransactionOutputInformationIn addTestKeyOutput(ITransaction& transaction, uint64_t amount,
+  inline TransactionOutputInformationIn addTestKeyOutput(ITransaction& transaction, uint64_t amount,
     uint32_t globalOutputIndex, const AccountKeys& senderKeys = generateAccountKeys()) {
 
     uint32_t index = static_cast<uint32_t>(transaction.addOutput(amount, senderKeys.address));

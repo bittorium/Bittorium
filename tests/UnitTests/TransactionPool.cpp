@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -168,12 +169,12 @@ namespace
 {
   static const size_t textMaxCumulativeSize = std::numeric_limits<size_t>::max();
 
-  void GenerateTransaction(const CryptoNote::Currency& currency, Transaction& tx, uint64_t fee, size_t outputs) {
+  /*void GenerateTransaction(const CryptoNote::Currency& currency, Transaction& tx, uint64_t fee, size_t outputs) {
     TestTransactionGenerator txGenerator(currency, 1);
     txGenerator.createSources();
     txGenerator.construct(txGenerator.m_source_amount, fee, outputs, tx);
-  }
-  
+  }*/
+
   template <typename Validator, typename TimeProvider>
   class TestPool {
   public:
@@ -204,13 +205,13 @@ namespace
     TransactionValidator validator;
   };
 
-  void InitBlock(BlockTemplate& bl, uint8_t majorVersion = BLOCK_MAJOR_VERSION_1) {
+  /*void InitBlock(BlockTemplate& bl, uint8_t majorVersion = BLOCK_MAJOR_VERSION_1) {
     bl.majorVersion = majorVersion;
     bl.minorVersion = 0;
     bl.nonce = 0;
     bl.timestamp = time(0);
     bl.previousBlockHash = NULL_HASH;
-  }
+  }*/
 
 }
 

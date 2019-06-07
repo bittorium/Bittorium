@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -61,7 +62,7 @@ gen_upgrade::gen_upgrade() : m_invalidBlockIndex(0), m_checkBlockTemplateVersion
 }
 
 bool gen_upgrade::generate(std::vector<test_event_entry>& events) const {
-  const uint64_t tsStart = 1338224400;
+  //const uint64_t tsStart = 1338224400;
 
   GENERATE_ACCOUNT(minerAccount);
   MAKE_GENESIS_BLOCK(events, blk0, minerAccount, tsStart);

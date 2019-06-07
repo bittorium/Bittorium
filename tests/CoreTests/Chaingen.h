@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -104,10 +105,10 @@ normal(std::basic_ostream<char, std::char_traits<char>>& ostr) {
 
 namespace {
 
-Crypto::Hash getBlockHash(const CryptoNote::BlockTemplate& blk) {
+inline Crypto::Hash getBlockHash(const CryptoNote::BlockTemplate& blk) {
   return CryptoNote::CachedBlock(blk).getBlockHash();
 }
-uint64_t getSummaryOutsAmount(const CryptoNote::Transaction& transaction) {
+inline uint64_t getSummaryOutsAmount(const CryptoNote::Transaction& transaction) {
   return std::accumulate(transaction.outputs.begin(), transaction.outputs.end(), uint64_t(0),
                          [](uint64_t sum, const CryptoNote::TransactionOutput& out) { return sum + out.amount; });
 }

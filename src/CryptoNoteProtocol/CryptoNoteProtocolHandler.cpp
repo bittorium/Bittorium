@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -246,7 +247,7 @@ bool CryptoNoteProtocolHandler::process_payload_sync_data(const CORE_SYNC_DATA& 
       "Your Bittorium node is syncing with the network. You are "
       // << get_current_blockchain_height() << " -> " << hshd.current_height
       << std::abs(diff) << " blocks (" << std::abs(diff) / (24 * 60 * 60 / m_currency.difficultyTarget()) << " days) "
-      << (diff >= 0 ? std::string("behind") : std::string("ahead of")) << " the Hare. Slow and steady wins the race! " << std::endl;
+      << (diff >= 0 ? std::string("behind") : std::string("ahead of")) << " the remote node. Synchronization started! " << std::endl;
 
     logger(Logging::DEBUGGING) << "Remote top block height: " << hshd.current_height << ", id: " << hshd.top_id;
     //let the socket to send response to handshake, but request callback, to let send request data after response

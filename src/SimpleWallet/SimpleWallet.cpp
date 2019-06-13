@@ -927,7 +927,7 @@ void inputLoop(std::shared_ptr<WalletInfo> &walletInfo, CryptoNote::INode &node)
         }
         else if (command == "save")
         {
-            std::cout << InformationMsg("Saving.") << std::endl;
+            std::cout << InformationMsg("Saving...") << std::endl;
             walletInfo->wallet.save();
             std::cout << InformationMsg("Saved.") << std::endl;
         }

@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -69,7 +70,7 @@ MiningConfig::MiningConfig(): help(false) {
       ("address", po::value<std::string>(), "Valid cryptonote miner's address")
       ("daemon-host", po::value<std::string>()->default_value(DEFAULT_DAEMON_HOST), "Daemon host")
       ("daemon-rpc-port", po::value<uint16_t>()->default_value(static_cast<uint16_t>(RPC_DEFAULT_PORT)), "Daemon's RPC port")
-      ("daemon-address", po::value<std::string>(), "Daemon host:port. If you use this option you must not use --daemon-host and --daemon-port options")
+      ("daemon-address", po::value<std::string>(), "Daemon host:port. If you use this option you must not use --daemon-host and --daemon-rpc-port options")
       ("threads", po::value<size_t>()->default_value(CONCURRENCY_LEVEL), "Mining threads count. Must not be greater than you concurrency level. Default value is your hardware concurrency level")
       ("scan-time", po::value<size_t>()->default_value(DEFAULT_SCANT_PERIOD), "Blockchain polling interval (seconds). How often miner will check blockchain for updates")
       ("log-level", po::value<int>()->default_value(1), "Log level. Must be 0..5")
@@ -124,7 +125,7 @@ void MiningConfig::parse(int argc, char** argv) {
   blocksLimit = options["limit"].as<size_t>();
 
   if (!options["block-timestamp-interval"].defaulted() && options["first-block-timestamp"].defaulted()) {
-    throw std::runtime_error("If you specify --block-timestamp-interval you must specify --first-block-timestamp either");
+    throw std::runtime_error("If you specify --block-timestamp-interval you must also specify --first-block-timestamp");
   }
 
   firstBlockTimestamp = options["first-block-timestamp"].as<uint64_t>();

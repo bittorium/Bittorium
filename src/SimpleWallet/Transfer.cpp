@@ -706,7 +706,7 @@ void transfer(std::shared_ptr<WalletInfo> walletInfo,
 
 void transfer(std::shared_ptr<WalletInfo> walletInfo)
 {
-    std::cout << InformationMsg("Note: You can type cancel at any time to "
+    std::cout << InformationMsg("Note: You can type \"cancel\" at any time to "
                                 "cancel the transaction")
               << std::endl << std::endl;
 

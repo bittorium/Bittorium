@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -60,7 +61,8 @@ public:
       std::rethrow_exception(exceptionPointer);
     }
 
-    return *reinterpret_cast<ResultType*>(resultStorage);
+    ResultType *result = reinterpret_cast<ResultType*>(resultStorage); // Need to use temporary variable so compiler knows this will alias!
+    return *result;
   }
 
   void interrupt() {

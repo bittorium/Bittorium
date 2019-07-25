@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -19,6 +20,7 @@
 
 #include <functional>
 
+#include "boost/thread/thread.hpp"
 #include "crypto/crypto.h"
 #include "CryptoNoteCore/CachedBlock.h"
 #include "CryptoNoteCore/CryptoNoteFormatUtils.h"
@@ -76,14 +78,18 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
 
   m_logger(Logging::INFO) << "Starting mining for difficulty " << blockMiningParameters.difficulty;
 
+  m_hashCount = 0;
+
+  m_workers.emplace_back(std::unique_ptr<System::RemoteContext<void>> (
+    new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::hashWorkerFunc, this)))
+  );
+
   try {
     blockMiningParameters.blockTemplate.nonce = Crypto::rand<uint32_t>();
-
     for (size_t i = 0; i < threadCount; ++i) {
       m_workers.emplace_back(std::unique_ptr<System::RemoteContext<void>> (
         new System::RemoteContext<void>(m_dispatcher, std::bind(&Miner::workerFunc, this, blockMiningParameters.blockTemplate, blockMiningParameters.difficulty, static_cast<uint32_t>(threadCount))))
       );
-
       blockMiningParameters.blockTemplate.nonce++;
     }
 
@@ -97,6 +103,26 @@ void Miner::runWorkers(BlockMiningParameters blockMiningParameters, size_t threa
   m_miningStopped.set();
 }
 
+void Miner::hashWorkerFunc() {
+  time_t startTime = time(NULL);
+
+  while (m_state == MiningState::MINING_IN_PROGRESS) {
+    boost::this_thread::sleep_for(boost::chrono::seconds(10));
+    time_t currentTime = time(NULL);
+    uint64_t elapsedTime = currentTime - startTime;
+    double hashesPerSecond = (double)m_hashCount / elapsedTime;
+    std::string hashUnit = "H";
+    if (hashesPerSecond >= 1000000) {
+      hashUnit = "MH";
+      hashesPerSecond /= 1000000;
+    } else if (hashesPerSecond > 1000) {
+      hashUnit = "kH";
+      hashesPerSecond /= 1000;
+    }
+    m_logger(Logging::INFO) << "Current hash rate: " << std::fixed << std::setprecision(3) << hashesPerSecond << " " << hashUnit << "/s";
+  }
+}
+
 void Miner::workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty, uint32_t nonceStep) {
   try {
     BlockTemplate block = blockTemplate;
@@ -105,6 +131,8 @@ void Miner::workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty
     while (m_state == MiningState::MINING_IN_PROGRESS) {
       CachedBlock cachedBlock(block);
       Crypto::Hash hash = cachedBlock.getBlockLongHash(cryptoContext);
+      m_hashCount++;
+
       if (check_hash(hash, difficulty)) {
         m_logger(Logging::INFO) << "Found block for difficulty " << difficulty;
 

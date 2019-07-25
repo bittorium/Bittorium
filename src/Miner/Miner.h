@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -53,6 +54,8 @@ private:
   enum class MiningState : uint8_t { MINING_STOPPED, BLOCK_FOUND, MINING_IN_PROGRESS};
   std::atomic<MiningState> m_state;
 
+  std::atomic<uint64_t> m_hashCount;
+
   std::vector<std::unique_ptr<System::RemoteContext<void>>>  m_workers;
 
   BlockTemplate m_block;
@@ -60,6 +63,7 @@ private:
   Logging::LoggerRef m_logger;
 
   void runWorkers(BlockMiningParameters blockMiningParameters, size_t threadCount);
+  void hashWorkerFunc();
   void workerFunc(const BlockTemplate& blockTemplate, Difficulty difficulty, uint32_t nonceStep);
   bool setStateBlockFound();
 };

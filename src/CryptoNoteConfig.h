@@ -149,8 +149,6 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000;          //
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "";
 
 const char* const SEED_NODES[] = {
-  "95.216.187.5:34902",
-  "95.216.187.3:34902",
   "95.216.163.155:34902",
   "193.70.84.52:34902"
 };

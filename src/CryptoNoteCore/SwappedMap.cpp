@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2017, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2019, The Bittorium developers
 //
 // This file is part of Bytecoin.
 //
@@ -18,7 +19,7 @@
 #include "SwappedMap.h"
 
 namespace {
-#ifdef MSVC
+#ifdef _MSC_VER
 char suppressMSVCWarningLNK4221;
 #endif
 }

@@ -1624,7 +1624,16 @@ ColouredMsg getPrompt(std::shared_ptr<WalletInfo> &walletInfo)
         walletName = walletInfo->walletFileName.substr(0, extPos);
     }
 
-    std::string shortName = walletName.substr(0, promptLength);
+    std::string shortName = walletName;
+    size_t pos;
+
+    if ((pos = shortName.rfind("\\")) != std::string::npos) {
+      shortName = shortName.substr(pos + 1, promptLength);
+    } else if ((pos = shortName.rfind("/")) != std::string::npos) {
+      shortName = shortName.substr(pos + 1, promptLength);
+    } else if (shortName.length() > promptLength) {
+      shortName = shortName.substr(0, promptLength);
+    }
 
     return InformationMsg("[BTOR " + shortName + "]: ");
 }

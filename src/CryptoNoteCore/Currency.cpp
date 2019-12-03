@@ -697,7 +697,7 @@ bool Currency::checkProofOfWork(Crypto::cn_context& context, const CachedBlock& 
     return checkProofOfWorkV2(context, block, currentDiffic);
   }
 
-  logger(ERROR, BRIGHT_RED) << "Unknown block major version: " << block.getBlock().majorVersion << "." << block.getBlock().minorVersion;
+  logger(ERROR, BRIGHT_RED) << "Unknown block major version: " << static_cast<int>(block.getBlock().majorVersion) << "." << static_cast<int>(block.getBlock().minorVersion);
   return false;
 }
 

@@ -6,7 +6,6 @@ endif()
 
 file(GLOB_RECURSE BlockchainExplorer BlockchainExplorer/*)
 file(GLOB_RECURSE Common Common/*)
-file(GLOB_RECURSE ConnectivityTool ConnectivityTool/*)
 file(GLOB_RECURSE Crypto crypto/*)
 file(GLOB_RECURSE CryptoNoteCore CryptoNoteCore/* CryptoNoteConfig.h)
 file(GLOB_RECURSE CryptoNoteProtocol CryptoNoteProtocol/*)
@@ -39,7 +38,7 @@ endif()
 # This appears to be an IDE thing, to group files together.
 # https://cmake.org/cmake/help/v3.0/command/source_group.html
 # Probably not what you need to be looking at if something isn't building
-source_group("" FILES $${Common} ${ConnectivityTool} ${Crypto} ${CryptoNoteCore} ${CryptoNoteProtocol} ${Daemon} ${JsonRpcServer} ${Http} ${Logging} ${Miner} ${Mnemonics} ${NodeRpcProxy} ${P2p} ${Rpc} ${Serialization} ${SimpleWallet} ${System} ${Transfers} ${Wallet} ${WalletLegacy})
+source_group("" FILES $${Common} ${Crypto} ${CryptoNoteCore} ${CryptoNoteProtocol} ${Daemon} ${JsonRpcServer} ${Http} ${Logging} ${Miner} ${Mnemonics} ${NodeRpcProxy} ${P2p} ${Rpc} ${Serialization} ${SimpleWallet} ${System} ${Transfers} ${Wallet} ${WalletLegacy})
 
 add_library(BlockchainExplorer ${BlockchainExplorer})
 add_library(Common ${Common})
